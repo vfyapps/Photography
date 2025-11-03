@@ -44,9 +44,30 @@ h1{font-size:30px;margin:0 0 6px;font-weight:700}
     .footer{margin-top:20px;color:var(--muted);font-size:12px}
     .row select{background:#0e1221;border:1px solid #1d2437;color:var(--text);border-radius:12px;padding:8px 10px}
     .badge{display:inline-block;margin-top:8px;font-size:11px;border:1px solid #28304a;border-radius:10px;padding:4px 8px;color:#9db1ff}
+    .vfy-header {
+  position: fixed;
+  top: 22px;
+  right: 30px;
+  z-index: 999;
+}
+
+.vfy-logo {
+  width: 130px;
+  height: auto;
+  opacity: 0.9;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
+  transition: opacity 0.2s ease;
+}
+
+.vfy-logo:hover {
+  opacity: 1;
+}
   </style>
 </head>
 <body>
+  <header class="vfy-header">
+  <img src="https://raw.githubusercontent.com/vfyapps/Photography/main/01_VFY-logo-staand-origineel-RGB%20white.jpg" alt="Villa for You logo" class="vfy-logo">
+</header>
   <div class="wrap">
     <h1>Photography Pricing Calculator</h1>
     <div class="sub">Select your shoot type and options to instantly compare <strong>new</strong> vs <strong>previous</strong> pricing.</div>
