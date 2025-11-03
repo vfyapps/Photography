@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Photography Price Calculator – Villa for You</title>
+  <title>Photography Pricing Calculator – Villa for You</title>
   <style>
     :root{
       --bg:#0a0b10;--card:#10131c;--text:#f2f5fb;--muted:#8a93a6;
@@ -52,12 +52,12 @@
     <div class="sub">Select your shoot type and options to instantly compare <strong>new</strong> vs <strong>previous</strong> pricing.</div>
     <div class="grid">
       <div class="card">
-        <div class="hd"><h2>Shoot Setup</h2></div>
+        <div class="hd"><h2>Photoshoot setup</h2></div>
         <div class="bd">
           <div class="pills" id="shootType">
             <div class="pill active" data-type="intExt">Interior + Exterior</div>
-            <div class="pill" data-type="int">Interior Only</div>
-            <div class="pill" data-type="ext">Exterior Only</div>
+            <div class="pill" data-type="int">Interior only</div>
+            <div class="pill" data-type="ext">Exterior only</div>
             <div class="pill" data-type="custom">Custom</div>
           </div>
           <div id="customModules" style="display:none">
@@ -88,10 +88,10 @@
         </div>
       </div>
       <div class="card">
-        <div class="hd"><h2>Price Overview</h2></div>
+        <div class="hd"><h2>Price overview</h2></div>
         <div class="bd">
           <table id="breakdown"><thead><tr><th>Item</th><th class="right">New (€)</th><th class="right">Old (€)</th><th class="right">Δ</th></tr></thead><tbody id="rows"></tbody><tfoot><tr><td><strong>Total</strong></td><td class="right" id="totNew">€0</td><td class="right" id="totPrev">—</td><td class="right" id="totDiff">—</td></tr></tfoot></table>
-          <div class="totals"><div class="tot-card"><h3>New Total</h3><div class="big" id="bigNew">€0</div></div><div class="tot-card"><h3>Difference</h3><div class="big" id="bigDiff">—</div></div></div>
+          <div class="totals"><div class="tot-card"><h3>New total</h3><div class="big" id="bigNew">€0</div></div><div class="tot-card"><h3>Difference</h3><div class="big" id="bigDiff">—</div></div></div>
           <div class="footer">Mileage = rate × (distance ×2 if return selected). Large home surcharge applies at 4+ bedrooms. Styling fee is €10 per day (always applied; not per shoot). <span id="selftest" class="badge" style="display:none"></span></div>
         </div>
       </div>
@@ -201,15 +201,7 @@ function recalc(){
 // Initial render
 recalc();
 
-// ===== Self-tests =====
-(function selfTests(){
-  const errs=[];
-  ['aiCount','bedrooms','distance','legacySeason','roundtrip','optSnow','optDrone'].forEach(id=>{ if(!el(id)) errs.push(`missing #${id}`) });
-  try{ recalc(); }catch(e){ errs.push('recalc threw: '+e.message); }
-  const badge = el('selftest');
-  if(badge){ badge.style.display='inline-block'; badge.textContent = errs.length? `Self-test: ${errs.length} issue(s)` : 'Self-test: OK'; badge.style.borderColor = errs.length? '#f87171' : '#28304a'; }
-  if(errs.length) console.error('[Calculator self-test]', errs); else console.log('[Calculator self-test] OK');
-})();
+
 </script>
 </body>
 </html>
