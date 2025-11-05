@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Photography Price Calculator – Villa for You</title>
+  <title>Photography Pricing Calculator – Villa for You</title>
   <style>
     :root{
       --bg:#0a0b10;--card:#10131c;--text:#f2f5fb;--muted:#8a93a6;
@@ -12,7 +12,7 @@
       --radius:22px;--shadow:0 8px 24px rgba(0,0,0,.35)
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:'Inter',system-ui,Segoe UI,Roboto;background:radial-gradient(900px 600px at 20% 0%,#121624,#0a0b10),var(--bg);color:var(--text)}
+    body{margin:0;font-family:'Inter',system-ui,Segoe UI,Roboto;min-height:100dvh;background:radial-gradient(farthest-corner at 30% 0%, #141826 0%, #0a0b10 100%);background-repeat:no-repeat;color:var(--text)}
     .wrap{max-width:1100px;margin:40px auto;padding:0 24px}
     h1{font-size:30px;margin:0 0 6px;font-weight:700}
     .sub{color:var(--muted);margin-bottom:28px;font-size:15px}
@@ -47,35 +47,26 @@
   </style>
 </head>
 <body>
-<a href="https://www.villaforyou.com" target="_top"><img src="../01_VFY-logo-staand-origineel-RGB white.jpg" width="75" height="52" alt=""></a>
-<div class="wrap">
-  <h1>Photography Price Calculator</h1>
+  <a href="https://www.villaforyou.com" target="_top"><img src="../01_VFY-logo-staand-origineel-RGB white.jpg" width="75" height="52" alt=""></a>
+  <div class="wrap">
+    <h1>Photography Pricing Calculator</h1>
     <div class="sub">Select your shoot type and options to instantly compare <strong>new</strong> vs <strong>previous</strong> pricing.</div>
-<div class="grid">
-    <div class="card">
-        <div class="hd"><h2>Photoshoot setup</h2>
-        </div>
+    <div class="grid">
+      <div class="card">
+        <div class="hd"><h2>Shoot Setup</h2></div>
         <div class="bd">
           <div class="pills" id="shootType">
-            <div class="pill active" data-type="intExt">Interior + exterior</div>
+            <div class="pill active" data-type="intExt">Interior + Exterior</div>
             <div class="pill" data-type="int">Interior only</div>
             <div class="pill" data-type="ext">Exterior only</div>
-            <div class="pill" data-type="custom">Custom</div>
-          </div>
-          <div id="customModules" style="display:none">
-            <div class="chips">
-              <label class="chip"><input type="checkbox" id="modInt"> Interior</label>
-              <label class="chip"><input type="checkbox" id="modExt"> Exterior</label>
-              <label class="chip"><input type="checkbox" id="modAI"> AI Editing</label>
-            </div>
           </div>
           <details id="aiPanel" style="margin-top:6px;">
-            <summary class="muted" style="font-size:13px;cursor:pointer;">Optional: AI‑edited photos</summary>
-            <div class="row"><label>AI‑edited photos</label><input type="number" id="aiCount" min="0" value="0"></div>
+            <summary class="muted" style="font-size:13px;cursor:pointer;">Optional: AI-edited photos</summary>
+            <div class="row"><label>AI-edited photos</label><input type="number" id="aiCount" min="0" value="0"></div>
           </details>
           <div class="row"><label>Bedrooms</label><input type="number" id="bedrooms" min="0" value="3"></div>
           <div class="row"><label>Distance (one-way, km)</label><input type="number" id="distance" min="0" value="0"></div>
-          <div class="row"><label><em>Legacy season (for comparison)</em></label>
+          <div class="row"><label>Legacy season (for comparison)</label>
             <select id="legacySeason">
               <option value="summer" selected>Summer</option>
               <option value="winter">Winter</option>
@@ -85,27 +76,24 @@
             <label class="chip"><input type="checkbox" id="roundtrip" checked> Return trip (2×)</label>
             <label class="chip"><input type="checkbox" id="optSnow"> Snow</label>
             <label class="chip"><input type="checkbox" id="optDrone"> Drone</label>
+            <label class="chip"><input type="checkbox" id="optStyle"> Styling (€10/day)</label>
           </div>
-          <div class="muted" style="font-size:12px; margin-top:6px;">Note: <strong>Styling fee €10</strong> is <em>per day</em> and always applied (not per shoot).</div>
-        </div>
-    </div>
-      <div class="card">
-        <div class="hd"><h2>Price overview</h2>
-        </div>
-        <div class="bd">
-          <table id="breakdown"><thead><tr><th>Item</th><th class="right">New (€)</th><th class="right">Old (€)</th><th class="right">Δ</th></tr></thead><tbody id="rows"></tbody><tfoot><tr><td><strong>Total</strong></td><td class="right" id="totNew">€0</td><td class="right" id="totPrev">—</td><td class="right" id="totDiff">—</td></tr></tfoot></table>
-          <div class="totals">
-            <div class="tot-card"><h3>New total</h3>
-            <div class="big" id="bigNew">€0</div></div><div class="tot-card"><h3>Difference</h3><div class="big" id="bigDiff">—</div></div></div>
-          <div class="footer">Mileage = rate × (distance ×2 if return selected). Large home surcharge applies at 4+ bedrooms. Styling fee is €10 per day (always applied; not per shoot). <span id="selftest" class="badge" style="display:none"></span></div>
         </div>
       </div>
+      <div class="card">
+        <div class="hd"><h2>Price Overview</h2></div>
+        <div class="bd">
+          <table id="breakdown"><thead><tr><th>Item</th><th class="right">New (€)</th><th class="right">Old (€)</th><th class="right">Δ</th></tr></thead><tbody id="rows"></tbody><tfoot><tr><td><strong>Total</strong></td><td class="right" id="totNew">€0</td><td class="right" id="totPrev">—</td><td class="right" id="totDiff">—</td></tr></tfoot></table>
+          <div class="totals"><div class="tot-card"><h3>New total</h3><div class="big" id="bigNew">€0</div></div><div class="tot-card"><h3>Difference</h3><div class="big" id="bigDiff">—</div></div></div>
+          <div class="footer">Mileage = rate × (distance ×2 if return selected). Large home surcharge applies at 4+ bedrooms. Styling fee is €10 per day (optional; per shooting day). </div>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 <script>
 // ===== Helpers =====
 const el=id=>document.getElementById(id);
-const money=v=>`€${(v||0).toFixed(2)}`.replace('.',',');
+const money=v=>`€${Number(v||0).toFixed(2)}`.replace('.',',');
 
 // ===== New pricing (modular) =====
 const NEW = { INT:70, EXT:45, AI:25, KM:0.12, SNOW:20, BIG:20, DRONE:25, STYLING:10 };
@@ -123,8 +111,8 @@ let shootType='intExt';
 
 // ===== UI wiring =====
 const typeButtons=document.querySelectorAll('#shootType .pill');
-typeButtons.forEach(btn=>btn.onclick=()=>{typeButtons.forEach(b=>b.classList.remove('active'));btn.classList.add('active');shootType=btn.dataset.type;el('customModules').style.display=(shootType==='custom')?'block':'none';recalc();});
-['modInt','modExt','modAI','aiCount','distance','roundtrip','bedrooms','optSnow','optDrone','legacySeason'].forEach(id=>{const node=el(id); if(node){node.addEventListener('input',recalc);} });
+typeButtons.forEach(btn=>btn.onclick=()=>{typeButtons.forEach(b=>b.classList.remove('active'));btn.classList.add('active');shootType=btn.dataset.type;recalc();});
+['aiCount','distance','roundtrip','bedrooms','optSnow','optDrone','legacySeason','optStyle'].forEach(id=>{const node=el(id); if(node){node.addEventListener('input',recalc);} });
 
 // ===== Core calc =====
 function legacyPrice(hasInt,hasExt,km,season,bedrooms){
@@ -144,7 +132,7 @@ function recalc(){
   if(shootType==='intExt'){useInt=useExt=true}
   else if(shootType==='int'){useInt=true}
   else if(shootType==='ext'){useExt=true}
-  else if(shootType==='custom'){useInt=el('modInt')?.checked||false;useExt=el('modExt')?.checked||false;useAI=el('modAI')?.checked||false}
+  
 
   const aiCount = parseFloat(el('aiCount')?.value)||0;
   const kmOne   = parseFloat(el('distance')?.value)||0;
@@ -152,16 +140,18 @@ function recalc(){
   const beds    = parseFloat(el('bedrooms')?.value)||0;
   const snow    = !!(el('optSnow')?.checked);
   const drone   = !!(el('optDrone')?.checked);
+  const style   = !!(el('optStyle')?.checked);
   const season  = (el('legacySeason')?.value)||'summer';
 
   // Build rows
   const rows=[]; let newTotal=0, oldTotal=0, anyOld=false;
   const push=(label,newV,oldV)=>{
-    const diff=(oldV!=null)?(newV-oldV):null;
-    const pct=(oldV>0 && diff!=null)? (diff/oldV*100) : null;
-    const cls=(diff==null)?'muted':(diff>0?'pos':diff<0?'neg':'muted');
-    const diffStr=(diff==null)?'—':((diff>0?'+':'')+money(diff));
-    const pctStr=(pct==null)?'':` (<span class="${cls}">${pct.toFixed(1)}%</span>)`;
+    const calcOld = (oldV==null)? 0 : oldV;
+    const diff = newV - calcOld;
+    const pct = (oldV!=null && oldV>0) ? (diff/oldV*100) : null;
+    const cls = diff>0?'pos':diff<0?'neg':'muted';
+    const diffStr = ((diff>0?'+':'')+money(diff));
+    const pctStr = (pct==null)?'' : ` (<span class="${cls}">${pct.toFixed(1).replace('.',',')}%</span>)`;
     rows.push(`<tr><td>${label}</td><td class='right'>${money(newV)}</td><td class='right'>${oldV==null?'—':money(oldV)}</td><td class='right ${cls}'>${diffStr}${pctStr}</td></tr>`);
     newTotal+=newV; if(oldV!=null){oldTotal+=oldV; anyOld=true;}
   };
@@ -185,8 +175,8 @@ function recalc(){
   if(beds>=4){ push('Large home surcharge', NEW.BIG, null); }
   if(snow){ push('Snow surcharge', NEW.SNOW, null); }
   if(drone){ push('Drone photography', NEW.DRONE, 51.5); }
-  // Styling always applies (per day)
-  push('Styling (per day)', NEW.STYLING, 10);
+  // Styling optional (per day)
+  if (style) { push('Styling (per day)', NEW.STYLING, 10); }
 
   // Render totals
   el('rows').innerHTML = rows.join('') || `<tr><td colspan='4' class='muted'>Select a shoot type or options to begin…</td></tr>`;
@@ -194,10 +184,11 @@ function recalc(){
   el('totPrev').textContent = anyOld ? money(oldTotal) : '—';
   const diff = anyOld ? (newTotal - oldTotal) : null;
   const pct = (anyOld && oldTotal>0) ? (diff/oldTotal*100) : null;
-  const cls = (diff==null)?'muted':(diff>0?'pos':diff<0?'neg':'muted');
-  el('totDiff').innerHTML = (diff==null) ? '—' : ((diff>0?'+':'')+money(diff) + (pct==null?'':` (<span class="${cls}">${pct.toFixed(1)}%</span>)`));
+  const clsTot = (diff==null)?'muted':(diff>0?'pos':diff<0?'neg':'muted');
+  const pctTxt = (pct==null)? '' : ` (<span class="${clsTot}">${pct.toFixed(1).replace('.',',')}%</span>)`;
+  el('totDiff').innerHTML = (diff==null) ? '—' : ((diff>0?'+':'')+money(diff) + pctTxt);
   el('bigNew').textContent = money(newTotal);
-  el('bigDiff').innerHTML = (diff==null)? '—' : ((diff>0?'+':'')+money(diff) + (pct==null?'':` (<span class="${cls}">${pct.toFixed(1)}%</span>)`));
+  el('bigDiff').innerHTML = (diff==null)? '—' : ((diff>0?'+':'')+money(diff) + pctTxt);
   el('bigDiff').className = 'big ' + ((diff==null)?'':(diff>0?'pos':diff<0?'neg':''));
 }
 
