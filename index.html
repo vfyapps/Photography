@@ -103,6 +103,7 @@ h1{font-size:30px;margin:0 0 6px;font-weight:700}
             <label class="chip"><input type="checkbox" id="roundtrip" checked> Return trip (2×)</label>
             <label class="chip"><input type="checkbox" id="optSnow"> Snow</label>
             <label class="chip"><input type="checkbox" id="optDrone"> Drone</label>
+            <label class="chip"><input type="checkbox" id="optStyle"> Styling (€10/day)</label>
           </div>
           
         </div>
@@ -139,7 +140,8 @@ let shootType='intExt';
 // ===== UI wiring =====
 const typeButtons=document.querySelectorAll('#shootType .pill');
 typeButtons.forEach(btn=>btn.onclick=()=>{typeButtons.forEach(b=>b.classList.remove('active'));btn.classList.add('active');shootType=btn.dataset.type;el('customModules').style.display=(shootType==='custom')?'block':'none';recalc();});
-['modInt','modExt','modAI','aiCount','distance','roundtrip','bedrooms','optSnow','optDrone','legacySeason'].forEach(id=>{const node=el(id); if(node){node.addEventListener('input',recalc);} });
+['modInt','modExt','modAI','aiCount','distance','roundtrip','bedrooms','optSnow','optDrone','legacySeason','optStyle']
+  .forEach(id=>{const node=el(id); if(node){node.addEventListener('input',recalc);} });
 
 // ===== Core calc =====
 function legacyPrice(hasInt,hasExt,km,season,bedrooms){
@@ -168,6 +170,7 @@ function recalc(){
   const snow    = !!(el('optSnow')?.checked);
   const drone   = !!(el('optDrone')?.checked);
   const season  = (el('legacySeason')?.value)||'summer';
+  const style   = !!(el('optStyle')?.checked);
 
   // Build rows
   const rows=[]; let newTotal=0, oldTotal=0, anyOld=false;
@@ -201,8 +204,8 @@ function recalc(){
   if(beds>=4){ push('Large home surcharge', NEW.BIG, null); }
   if(snow){ push('Snow surcharge', NEW.SNOW, null); }
   if(drone){ push('Drone photography', NEW.DRONE, 51.5); }
-  // Styling always applies (per day)
-  push('Styling (per day)', NEW.STYLING, 10);
+  // Styling optional (per day)
+  if (style) { push('Styling (per day)', NEW.STYLING, 10); }
 
   // Render totals
   el('rows').innerHTML = rows.join('') || `<tr><td colspan='4' class='muted'>Select a shoot type or options to begin…</td></tr>`;
