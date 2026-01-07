@@ -3,227 +3,1568 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Photography Pricing Calculator – Villa for You</title>
+  <title>Villa for You – Photography Pricing Calculator</title>
   <style>
     :root{
       --bg:#0a0b10;--card:#10131c;--text:#f2f5fb;--muted:#8a93a6;
+      --border:#1a1d2a;--radius:22px;--shadow:0 8px 24px rgba(0,0,0,.35);
       --accent:linear-gradient(90deg,#7afcff,#fe8cff);
-      --ok:#10b981;--warn:#fbbf24;--bad:#f87171;--border:#1a1d2a;
-      --radius:22px;--shadow:0 8px 24px rgba(0,0,0,.35)
+      --chip:#151a26; --warn:#fbbf24;
     }
-   *{box-sizing:border-box}
-body{margin:0;font-family:'Inter',system-ui,Segoe UI,Roboto;min-height:100dvh;background:radial-gradient(farthest-corner at 30% 0%, #141826 0%, #0a0b10 100%);background-repeat:no-repeat;color:var(--text)}
-.wrap{max-width:1100px;margin:40px auto;padding:0 24px}
-h1{font-size:30px;margin:0 0 6px;font-weight:700}
-.sub{color:var(--muted);margin-bottom:28px;font-size:15px}
-.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px}
-@media(max-width:900px){.grid{grid-template-columns:1fr}}
-.card{background:linear-gradient(180deg,#111522,#0b0e16);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
-.card .hd{padding:18px 18px 0}
-.card .bd{padding:18px}
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+      min-height:100dvh;
+      background:
+  radial-gradient(900px 600px at 20% 0%, rgba(122,252,255,.18), transparent 60%),
+  radial-gradient(900px 600px at 80% 10%, rgba(254,140,255,.14), transparent 55%),
+  #0a0b10;
+
+      color:var(--text);
+    }
+    .wrap{max-width:1220px;margin:40px auto;padding:0 24px}
+    h1{font-size:30px;margin:0 0 6px;font-weight:950;letter-spacing:-.02em}
+    .sub{color:var(--muted);margin-bottom:18px;font-size:15px}
+    .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
+    @media(max-width:980px){.grid{grid-template-columns:1fr}}
+    .card{
+      background:linear-gradient(180deg,#111522,#0b0e16);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .hd{padding:18px 18px 0}
+    .bd{padding:18px}
     h2{font-size:18px;margin:0 0 10px}
-    .pills{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
-    .pill{padding:8px 14px;border-radius:999px;border:1px solid #23273a;background:#151a26;color:#d0d5e4;font-weight:500;cursor:pointer;transition:.2s}
-    .pill.active{background:linear-gradient(90deg,#7afcff,#fe8cff);color:#0a0b10;font-weight:600}
-    label{font-size:14px;color:var(--text)}
-    input,select{background:#0e1221;border:1px solid #1d2437;color:var(--text);border-radius:12px;padding:8px 10px;min-width:100px}
-    .row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;margin:8px 0}
-    .chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-    .chip{padding:6px 10px;border:1px solid #252a3a;border-radius:12px;background:#141824;font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer}
-    .chip input{transform:scale(1.1)}
-    table{width:100%;border-collapse:collapse;margin-top:10px}
-    th,td{padding:10px 12px;border-bottom:1px dashed #1d2336;font-size:14px}
-    th{text-align:left;color:#aab3c5;font-weight:600}
-    .right{text-align:right}
     .muted{color:var(--muted)}
-    .totals{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
-    .tot-card{border:1px solid var(--border);background:#0d111b;border-radius:16px;padding:16px}
-    .tot-card h3{margin:0 0 6px;font-size:14px;color:#cbd5e1}
-    .tot-card .big{font-size:28px;font-weight:800;background:var(--accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .pos{color:var(--ok)}.neg{color:var(--bad)}
-    .footer{margin-top:20px;color:var(--muted);font-size:12px}
-    .row select{background:#0e1221;border:1px solid #1d2437;color:var(--text);border-radius:12px;padding:8px 10px}
-    .badge{display:inline-block;margin-top:8px;font-size:11px;border:1px solid #28304a;border-radius:10px;padding:4px 8px;color:#9db1ff}
-    .vfy-header {
-  position: fixed;
-  top: 22px;
-  right: 30px;
-  z-index: 999;
-}
+    .mini{font-size:12px;color:#aab3c5;margin-top:6px}
+    .row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;margin:10px 0}
+    label{font-size:14px;color:var(--text)}
+    input,select{
+      background:#0e1221;border:1px solid #1d2437;color:var(--text);
+      border-radius:12px;padding:9px 10px;outline:none;
+    }
+    input[type="number"]{max-width:160px}
+    input[type="text"]{min-width:220px}
+    .chips{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+    .chip{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 12px;border:1px solid #252a3a;border-radius:999px;
+      background:var(--chip);font-size:13px;cursor:pointer;user-select:none;
+      transition:.15s;
+    }
+    .chip:hover{transform:translateY(-1px)}
+    .chip input{transform:scale(1.1)}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:9px 14px;border-radius:999px;border:1px solid #23273a;background:#151a26;
+      color:#d0d5e4;font-weight:950;cursor:pointer;transition:.15s;
+    }
+    .pill.active{background:var(--accent);color:#0a0b10;border-color:transparent}
+    .pillbar{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 6px}
+    .badge{
+      display:inline-block;margin-left:8px;font-size:11px;border:1px solid #28304a;border-radius:999px;
+      padding:4px 8px;color:#9db1ff
+    }
+    .divider{height:1px;background:#1a2033;margin:14px 0}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{padding:10px 12px;border-bottom:1px dashed #1d2336;font-size:14px;vertical-align:top}
+    th{text-align:left;color:#aab3c5;font-weight:950}
+    .right{text-align:right}
+    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    button{
+      background:#141a27;border:1px solid #27304a;color:#e7ecff;
+      padding:10px 12px;border-radius:14px;cursor:pointer;font-weight:950;
+      transition:.15s;
+    }
+    button:hover{transform:translateY(-1px);border-color:#3a4770}
+    button.primary{background:var(--accent);color:#0a0b10;border-color:transparent}
+    button.ghost{background:transparent}
+    .hint{font-size:12px;color:var(--muted);line-height:1.45;margin-top:10px}
+    .warn{color:var(--warn)}
 
-.vfy-logo {
-  width: 130px;
-  height: auto;
-  opacity: 0.9;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
-  transition: opacity 0.2s ease;
-}
+    .vfy-header {position: fixed;top: 22px;right: 30px;z-index: 999;}
+    .vfy-logo {width: 130px;height: auto;opacity: 0.9;filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));transition: opacity 0.2s ease;}
+    .vfy-logo:hover {opacity: 1;}
 
-.vfy-logo:hover {
-  opacity: 1;
-}
+    .totalWrap{display:flex;justify-content:center;margin-top:14px}
+    .totalCard{
+      width:min(520px, 100%);
+      border:1px solid var(--border);
+      background:#0d111b;border-radius:18px;padding:16px;
+      text-align:center;
+    }
+    .totalCard h3{margin:0 0 6px;font-size:13px;color:#cbd5e1;font-weight:950}
+    .big{
+      font-size:34px;font-weight:980;
+      background:var(--accent);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      letter-spacing:-.02em;
+    }
+
+    .locCard{
+      border:1px solid var(--border);
+      background:#0d111b;border-radius:18px;padding:14px;
+      margin:10px 0;
+      box-shadow:none;
+    }
+    .locHeader{
+      display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+    }
+    .locTitle{font-weight:980}
+    .inline{display:flex;gap:10px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+
+    .presetBar{
+      display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 0;
+    }
+    .preset{
+      padding:8px 12px;border-radius:999px;border:1px solid #26304a;
+      background:#0d111b;color:#dbe3ff;font-weight:950;font-size:12px;
+      cursor:pointer;transition:.15s;
+    }
+    .preset:hover{transform:translateY(-1px);border-color:#3a4770}
+
+    .topBar{
+      display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+      margin:0 0 10px;
+    }
+    .topBar select{min-width:180px}
   </style>
 </head>
+
 <body>
   <header class="vfy-header">
-  <img src="https://raw.githubusercontent.com/vfyapps/Photography/main/01_VFY-logo-staand-origineel-RGB%20white2.png" alt="Villa for You logo" class="vfy-logo">
-</header>
+    <img src="https://raw.githubusercontent.com/vfyapps/Photography/main/01_VFY-logo-staand-origineel-RGB%20white2.png" alt="Villa for You logo" class="vfy-logo">
+  </header>
+
   <div class="wrap">
     <h1>Photography Pricing Calculator</h1>
-    <div class="sub">Select your shoot type and options to instantly compare <strong>new</strong> vs <strong>previous</strong> pricing.</div>
+    <div class="sub">
+      Build a quote for a single home, multiple homes (same location), or multiple locations.
+      <span class="badge">30–40 photos per home • editing included</span>
+    </div>
+
     <div class="grid">
+      <!-- LEFT -->
       <div class="card">
-        <div class="hd"><h2>Photoshoot setup</h2></div>
+        <div class="hd"><h2>Setup</h2></div>
         <div class="bd">
-          <div class="pills" id="shootType">
-            <div class="pill active" data-type="intExt">Interior + Exterior</div>
-            <div class="pill" data-type="int">Interior only</div>
-            <div class="pill" data-type="ext">Exterior only</div>
+
+          <div class="topBar">
+            <div class="row" style="margin:0; grid-template-columns:auto auto; gap:10px;">
+              <label style="margin-right:8px;">Country</label>
+              <select id="country">
+                <option value="AT" selected>Austria (AT)</option>
+                <option value="NL">Netherlands (NL)</option>
+                <option value="DE">Germany (DE)</option>
+                <option value="FR">France (FR)</option>
+                <option value="BE">Belgium (BE)</option>
+              </select>
+            </div>
+            <div class="mini muted" id="countryHint"></div>
           </div>
-          <div id="customModules" style="display:none">
+
+          <div class="pillbar" id="modeBar">
+            <div class="pill active" data-mode="single">Single home</div>
+            <div class="pill" data-mode="multi_same">Multiple homes (same location)</div>
+            <div class="pill" data-mode="multi_locations">Multiple locations</div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- SINGLE -->
+          <div id="singlePanel">
+            <div class="row">
+              <label>Location name (optional)</label>
+              <input id="s_locationName" type="text" placeholder="e.g., Kirchberg Haus" />
+            </div>
+
+            <div class="row">
+              <label>One-way distance (km)</label>
+              <input id="s_km" type="number" min="0" value="0" />
+            </div>
+
+            <div class="row">
+              <label>Travel tier <span class="badge" id="s_tierBadge">0–50 km</span></label>
+              <div class="inline" style="min-width:280px">
+                <label class="chip" style="margin:0">
+                  <input type="checkbox" id="s_tierOverride" />
+                  Override
+                </label>
+                <select id="s_tierSelect" disabled style="max-width:180px">
+                  <option value="0_50">0–50 km</option>
+                  <option value="51_100">51–100 km</option>
+                  <option value="100_plus">100+ km</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mini muted">Travel is charged <strong>once per location</strong>.</div>
+
+            <div class="divider"></div>
+
+            <div class="locHeader">
+              <h2 style="margin:0">Home details</h2>
+              <div class="presetBar" aria-label="Presets (single)">
+                <button class="preset" type="button" data-preset="single_standard">Standard</button>
+                <button class="preset" type="button" data-preset="single_exterior">Exterior only</button>
+                <button class="preset" type="button" data-preset="single_family">Family home (4 beds)</button>
+                <button class="preset" type="button" data-preset="single_drone">+ Drone</button>
+              </div>
+            </div>
+
+            <div class="row">
+              <label>Acco ID (optional)</label>
+              <input id="s_accoId" type="text" placeholder="e.g., AT.12345.01" />
+            </div>
+
             <div class="chips">
-              <label class="chip"><input type="checkbox" id="modInt"> Interior</label>
-              <label class="chip"><input type="checkbox" id="modExt"> Exterior</label>
-              <label class="chip"><input type="checkbox" id="modAI"> AI Editing</label>
+              <label class="chip"><input type="checkbox" id="sExt" checked /> Exterior</label>
+              <label class="chip"><input type="checkbox" id="sInt" checked /> Interior</label>
+              <label class="chip"><input type="checkbox" id="sDrone" /> Drone</label>
+              <label class="chip"><input type="checkbox" id="sAcc" /> Accessories</label>
+            </div>
+
+            <div class="row" id="sBedsRow">
+              <label>Bedrooms (for Interior)</label>
+              <input id="sBeds" type="number" min="0" value="2" />
+            </div>
+
+            <div class="row" id="sAccDaysRow" style="display:none">
+              <label>Accessories days</label>
+              <input id="sAccDays" type="number" min="1" value="1" />
+            </div>
+
+            <div class="row">
+              <label>Notes (optional)</label>
+              <input id="s_notes" type="text" placeholder="e.g., key handover, special shots, best time for exteriors…" />
             </div>
           </div>
-          <details id="aiPanel" style="margin-top:6px;">
-            <summary class="muted" style="font-size:13px;cursor:pointer;">Optional: AI‑edited photos</summary>
-            <div class="row"><label>AI‑edited photos</label><input type="number" id="aiCount" min="0" value="0"></div>
-          </details>
-          <div class="row"><label>Bedrooms</label><input type="number" id="bedrooms" min="0" value="3"></div>
-          <div class="row"><label>Distance (one-way, km)</label><input type="number" id="distance" min="0" value="0"></div>
-           <div class="row"><label>Legacy season (changes automatically)</label>
-            <select id="legacySeason">
-              <option value="summer" selected>Summer</option>
-              <option value="winter">Winter</option>
-            </select>
+
+          <!-- MULTI SAME -->
+          <div id="multiSamePanel" style="display:none">
+            <div class="row">
+              <label>Location name</label>
+              <input id="ms_locationName" type="text" placeholder="e.g., Park X" />
+            </div>
+
+            <div class="row">
+              <label>One-way distance (km)</label>
+              <input id="ms_km" type="number" min="0" value="0" />
+            </div>
+
+            <div class="row">
+              <label>Travel tier <span class="badge" id="ms_tierBadge">0–50 km</span></label>
+              <div class="inline" style="min-width:280px">
+                <label class="chip" style="margin:0">
+                  <input type="checkbox" id="ms_tierOverride" />
+                  Override
+                </label>
+                <select id="ms_tierSelect" disabled style="max-width:180px">
+                  <option value="0_50">0–50 km</option>
+                  <option value="51_100">51–100 km</option>
+                  <option value="100_plus">100+ km</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mini muted">
+              Travel is charged <strong>once</strong> for this location (regardless of number of homes).
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="locHeader">
+              <h2 style="margin:0">Homes at this location</h2>
+              <div class="presetBar" aria-label="Presets (same location)">
+                <button class="preset" type="button" data-preset="ms_parkday">Park day (3 homes)</button>
+                <button class="preset" type="button" data-preset="ms_standard_all">Standard for all</button>
+                <button class="preset" type="button" data-preset="ms_add_drone_all">Add drone to all</button>
+              </div>
+            </div>
+
+            <div class="row">
+              <label>Number of homes</label>
+              <div class="inline">
+                <input id="ms_homeCount" type="number" min="1" value="3" style="max-width:110px" />
+                <button id="ms_buildHomesBtn" type="button">Build list</button>
+              </div>
+            </div>
+
+            <div id="ms_homesList"></div>
+
+            <div class="row">
+              <label>Notes (optional)</label>
+              <input id="ms_notes" type="text" placeholder="e.g., park entrance, contact person, timing…" />
+            </div>
           </div>
-          <div class="chips">
-            <label class="chip"><input type="checkbox" id="roundtrip" checked> Return trip (2×)</label>
-            <label class="chip"><input type="checkbox" id="optSnow"> Snow</label>
-            <label class="chip"><input type="checkbox" id="optDrone"> Drone</label>
-            <label class="chip"><input type="checkbox" id="optStyle"> Styling (€10/day)</label>
+
+          <!-- MULTI LOCATIONS -->
+          <div id="multiLocPanel" style="display:none">
+            <div class="row">
+              <label>Number of locations</label>
+              <div class="inline">
+                <input id="ml_locCount" type="number" min="1" value="2" style="max-width:110px" />
+                <button id="ml_buildLocBtn" type="button">Build locations</button>
+              </div>
+            </div>
+
+            <div id="ml_locations"></div>
+
+            <div class="hint">
+              Travel is charged once per location. Use “Duplicate” to quickly copy a similar location setup.
+            </div>
           </div>
-          
+
+          <div class="divider"></div>
+
+          <div class="btns">
+            <button class="primary" id="copyBtn" type="button">Copy quote</button>
+            <button id="saveLinkBtn" type="button">Save link</button>
+            <button id="exportPdfBtn" type="button">Export PDF</button>
+            <button id="resetBtn" type="button">Reset</button>
+          </div>
+
+          <div class="hint" id="validationHint" style="display:none"></div>
         </div>
       </div>
+
+      <!-- RIGHT -->
       <div class="card">
         <div class="hd"><h2>Price overview</h2></div>
         <div class="bd">
-          <table id="breakdown"><thead><tr><th>Item</th><th class="right">New (€)</th><th class="right">Old (€)</th><th class="right">Δ</th></tr></thead><tbody id="rows"></tbody><tfoot><tr><td><strong>Total</strong></td><td class="right" id="totNew">€0</td><td class="right" id="totPrev">—</td><td class="right" id="totDiff">—</td></tr></tfoot></table>
-          <div class="totals"><div class="tot-card"><h3>New total</h3><div class="big" id="bigNew">€0</div></div><div class="tot-card"><h3>Difference</h3><div class="big" id="bigDiff">—</div></div></div>
-          <div class="footer">Mileage = €0,12 × (distance ×2 if return selected). Large home surcharge applies at 4+ bedrooms. <span id="selftest" class="badge" style="display:none"></span></div>
+          <table>
+            <thead>
+              <tr><th>Item</th><th class="right">Amount (€)</th></tr>
+            </thead>
+            <tbody id="rows"></tbody>
+            <tfoot>
+              <tr><td><strong>Total</strong></td><td class="right" id="totalCell">€0,00</td></tr>
+            </tfoot>
+          </table>
+
+          <div class="totalWrap">
+            <div class="totalCard">
+              <h3>Total</h3>
+              <div class="big" id="bigTotal">€0,00</div>
+              <div class="mini muted" id="scopeLine">—</div>
+            </div>
+          </div>
+
+          <div class="hint" id="pricingSummary"></div>
         </div>
       </div>
     </div>
   </div>
+
 <script>
-// ===== Helpers =====
-const el=id=>document.getElementById(id);
-const money=v=>`€${Number(v||0).toFixed(2)}`.replace('.',',');
+/* =========================================================
+   PRICING CONFIG (Multi-country ready)
+   - Fill in NL/DE/FR/BE later without touching logic.
+   ========================================================= */
+const PRICING_BY_COUNTRY = {
+  AT: {
+    currency: "EUR",
+    label: "Austria",
+    prices: {
+      exterior: 50,
+      interior_base_up_to_2: 80,
+      extra_bedroom: 10,
+      drone: 55,
+      accessories_per_day: 10,
+      travel: { "0_50": 32, "51_100": 64, "100_plus": 96 }
+    }
+  },
 
-// ===== New pricing (modular) =====
-const NEW = { INT:70, EXT:45, AI:25, KM:0.12, SNOW:20, BIG:20, DRONE:25, STYLING:10 };
-
-// ===== Legacy pricing (bundled by distance & season) =====
-const LEGACY = {
-  lt50: { exterior:{winter:63,summer:48}, interior_lt3:73, interior_gte4:94, combo:{winter_lt3:120,winter_gte4:141,summer_lt3:105,summer_gte4:126} },
-  mid50_100: { exterior:{winter:73,summer:58}, interior_lt3:84, interior_gte4:105, combo:{winter_lt3:130,winter_gte4:151,summer_lt3:115,summer_gte4:136} },
-  gt100: { exterior:{winter:90,summer:74}, interior_lt3:110, interior_gte4:130, combo:{winter_lt3:147,winter_gte4:168,summer_lt3:131,summer_gte4:152} }
+  // TODO: fill these when ready
+  NL: { currency:"EUR", label:"Netherlands", prices: null },
+  DE: { currency:"EUR", label:"Germany",     prices: null },
+  FR: { currency:"EUR", label:"France",      prices: null },
+  BE: { currency:"EUR", label:"Belgium",     prices: null },
 };
-const tierFromKm=k=> (k<50?'lt50':(k<=100?'mid50_100':'gt100'));
 
-// ===== State =====
-let shootType='intExt';
+/* =========================================================
+   Helpers
+   ========================================================= */
+const el = (id) => document.getElementById(id);
+const money = (v) => `€${Number(v||0).toFixed(2)}`.replace('.', ',');
+const clampInt = (n, min=0) => {
+  const x = parseInt(n, 10);
+  return Number.isFinite(x) ? Math.max(min, x) : min;
+};
+const safeNum = (n) => {
+  const x = Number(n);
+  return Number.isFinite(x) ? x : 0;
+};
+function travelTierFromKm(km){
+  const k = safeNum(km);
+  if (k <= 50) return "0_50";
+  if (k <= 100) return "51_100";
+  return "100_plus";
+}
+function travelTierLabel(tier){
+  if (tier === "0_50") return "0–50 km";
+  if (tier === "51_100") return "51–100 km";
+  return "100+ km";
+}
+function getPricing(){
+  const c = el("country").value;
+  const cfg = PRICING_BY_COUNTRY[c];
+  return cfg?.prices || null;
+}
+function setPricingHints(){
+  const c = el("country").value;
+  const cfg = PRICING_BY_COUNTRY[c];
+  const prices = cfg?.prices;
 
-// ===== UI wiring =====
-const typeButtons=document.querySelectorAll('#shootType .pill');
-typeButtons.forEach(btn=>btn.onclick=()=>{typeButtons.forEach(b=>b.classList.remove('active'));btn.classList.add('active');shootType=btn.dataset.type;el('customModules').style.display=(shootType==='custom')?'block':'none';recalc();});
-['modInt','modExt','modAI','aiCount','distance','roundtrip','bedrooms','optSnow','optDrone','legacySeason','optStyle']
-  .forEach(id=>{const node=el(id); if(node){node.addEventListener('input',recalc);} });
+  const hint = el("countryHint");
+  const summary = el("pricingSummary");
 
-// ===== Core calc =====
-function legacyPrice(hasInt,hasExt,km,season,bedrooms){
-  const t = LEGACY[tierFromKm(km)], g4 = bedrooms>=4;
-  if(hasInt && hasExt){ return t.combo[`${season}_${g4?'gte4':'lt3'}`]; }
-  if(hasInt){ return g4 ? t.interior_gte4 : t.interior_lt3; }
-  if(hasExt){ return t.exterior[season]; }
-  return 0;
+  if (!prices){
+    hint.innerHTML = `<span class="warn">Prices not configured for ${cfg.label} yet.</span>`;
+    summary.innerHTML = `<span class="warn">Pricing for ${cfg.label} is still TBD. Totals will show €0,00 until configured.</span>`;
+  } else {
+    hint.textContent = `${cfg.label} pricing loaded.`;
+    summary.textContent =
+      `${cfg.label}: Exterior €${prices.exterior} • Interior €${prices.interior_base_up_to_2} (up to 2 bedrooms) • Each additional bedroom +€${prices.extra_bedroom} • Drone +€${prices.drone} • Accessories +€${prices.accessories_per_day}/day • Travel charged once per location.`;
+  }
 }
 
-function recalc(){
-  // Auto-season: strictly bind to Snow (unchecked → Summer, checked → Winter)
-  if (el('legacySeason')) el('legacySeason').value = (el('optSnow')?.checked) ? 'winter' : 'summer';
+/* =========================================================
+   Mode state
+   ========================================================= */
+let mode = "single";
 
-  // Determine selected modules
-  let useInt=false,useExt=false,useAI=false;
-  if(shootType==='intExt'){useInt=useExt=true}
-  else if(shootType==='int'){useInt=true}
-  else if(shootType==='ext'){useExt=true}
-  else if(shootType==='custom'){useInt=el('modInt')?.checked||false;useExt=el('modExt')?.checked||false;useAI=el('modAI')?.checked||false}
+/* =========================================================
+   UI: mode switching
+   ========================================================= */
+const modeBtns = document.querySelectorAll("#modeBar .pill");
+modeBtns.forEach(b => b.addEventListener("click", () => {
+  modeBtns.forEach(x => x.classList.remove("active"));
+  b.classList.add("active");
+  mode = b.dataset.mode;
 
-  const aiCount = parseFloat(el('aiCount')?.value)||0;
-  const kmOne   = parseFloat(el('distance')?.value)||0;
-  const kmTotal = kmOne * (el('roundtrip')?.checked?2:1);
-  const beds    = parseFloat(el('bedrooms')?.value)||0;
-  const snow    = !!(el('optSnow')?.checked);
-  const drone   = !!(el('optDrone')?.checked);
-  const season  = (el('legacySeason')?.value)||'summer';
-  const style   = !!(el('optStyle')?.checked);
+  el("singlePanel").style.display     = (mode==="single") ? "block" : "none";
+  el("multiSamePanel").style.display  = (mode==="multi_same") ? "block" : "none";
+  el("multiLocPanel").style.display   = (mode==="multi_locations") ? "block" : "none";
 
-  // Build rows
-  const rows=[]; let newTotal=0, oldTotal=0, anyOld=false;
-  const push=(label,newV,oldV)=>{
-    const calcOld = (oldV==null)? 0 : oldV;
-    const diff = newV - calcOld;
-    const pct = (oldV!=null && oldV>0) ? (diff/oldV*100) : null;
-    const cls = diff>0?'pos':diff<0?'neg':'muted';
-    const diffStr = ((diff>0?'+':'')+money(diff));
-    const pctStr = (pct==null)?'' : ` (<span class="${cls}">${pct.toFixed(1).replace('.',',')}%</span>)`;
-    rows.push(`<tr><td>${label}</td><td class='right'>${money(newV)}</td><td class='right'>${oldV==null?'—':money(oldV)}</td><td class='right ${cls}'>${diffStr}${pctStr}</td></tr>`);
-    newTotal+=newV; if(oldV!=null){oldTotal+=oldV; anyOld=true;}
-  };
+  recalc();
+}));
 
-  // Base (combine I+E when both selected)
-  if(useInt && useExt){
-    push('Interior + Exterior', NEW.INT+NEW.EXT, legacyPrice(true,true,kmOne,season,beds));
-  } else if(useInt){
-    push('Interior', NEW.INT, legacyPrice(true,false,kmOne,season,beds));
-  } else if(useExt){
-    push('Exterior', NEW.EXT, legacyPrice(false,true,kmOne,season,beds));
+/* =========================================================
+   Travel tier sync helper
+   ========================================================= */
+function syncTravelTier(panelPrefix){
+  const kmEl = el(panelPrefix + "_km");
+  const overrideEl = el(panelPrefix + "_tierOverride");
+  const selectEl = el(panelPrefix + "_tierSelect");
+  const badgeEl = el(panelPrefix + "_tierBadge");
+
+  const km = safeNum(kmEl?.value || 0);
+  const override = !!overrideEl?.checked;
+
+  if (selectEl) selectEl.disabled = !override;
+
+  const tier = override ? (selectEl?.value || "0_50") : travelTierFromKm(km);
+  if (selectEl && !override) selectEl.value = tier;
+  if (badgeEl) badgeEl.textContent = travelTierLabel(tier);
+
+  return tier;
+}
+
+/* =========================================================
+   Pricing calculations (country-aware)
+   ========================================================= */
+function calcInterior(prices, bedrooms){
+  if (!prices) return 0;
+  const beds = Math.max(0, safeNum(bedrooms));
+  if (beds <= 0) return 0;
+  if (beds <= 2) return prices.interior_base_up_to_2;
+  return prices.interior_base_up_to_2 + (beds - 2) * prices.extra_bedroom;
+}
+function calcHomeTotal(prices, {ext,int,beds,drone,acc,accDays}){
+  if (!prices) return 0;
+  let t = 0;
+  if (ext) t += prices.exterior;
+  if (int) t += calcInterior(prices, beds);
+  if (drone) t += prices.drone;
+  if (acc) t += prices.accessories_per_day * clampInt(accDays, 1);
+  return t;
+}
+
+/* =========================================================
+   Single wiring
+   ========================================================= */
+function syncSingleUI(){
+  el("sBedsRow").style.display = el("sInt").checked ? "grid" : "none";
+  el("sAccDaysRow").style.display = el("sAcc").checked ? "grid" : "none";
+}
+["sExt","sInt","sDrone","sAcc","sBeds","sAccDays","s_locationName","s_km","s_tierOverride","s_tierSelect","s_accoId","s_notes"]
+  .forEach(id => el(id).addEventListener("input", () => { syncSingleUI(); syncTravelTier("s"); recalc(); }));
+
+/* =========================================================
+   Multi same wiring
+   ========================================================= */
+["ms_locationName","ms_km","ms_tierOverride","ms_tierSelect","ms_notes","ms_homeCount"]
+  .forEach(id => el(id).addEventListener("input", () => { syncTravelTier("ms"); recalc(); }));
+
+function buildMultiSameHomes(presetHomes){
+  const count = presetHomes ? presetHomes.length : clampInt(el("ms_homeCount").value, 1);
+  const container = el("ms_homesList");
+  container.innerHTML = "";
+
+  for (let i=1; i<=count; i++){
+    const wrap = document.createElement("div");
+    wrap.className = "locCard homeCard"; // homeCard (distinct)
+    wrap.innerHTML = `
+      <div class="locHeader">
+        <div class="locTitle">Home ${i}</div>
+        <div class="muted" style="font-size:12px">Same location • travel charged once</div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <label>Acco ID (optional)</label>
+        <input type="text" placeholder="e.g., AT.12345.0${i}" data-home="${i}" data-k="accoId" />
+      </div>
+
+      <div class="chips" style="margin-top:8px">
+        <label class="chip"><input type="checkbox" data-home="${i}" data-k="ext" checked /> Exterior</label>
+        <label class="chip"><input type="checkbox" data-home="${i}" data-k="int" checked /> Interior</label>
+        <label class="chip"><input type="checkbox" data-home="${i}" data-k="drone" /> Drone</label>
+        <label class="chip"><input type="checkbox" data-home="${i}" data-k="acc" /> Accessories</label>
+      </div>
+
+      <div class="row" data-row="beds" data-home="${i}">
+        <label>Bedrooms (for Interior)</label>
+        <input type="number" min="0" value="2" data-home="${i}" data-k="beds" />
+      </div>
+
+      <div class="row" data-row="accDays" data-home="${i}" style="display:none">
+        <label>Accessories days</label>
+        <input type="number" min="1" value="1" data-home="${i}" data-k="accDays" />
+      </div>
+    `;
+    container.appendChild(wrap);
   }
 
-  // AI edits
-  if(((shootType==='custom'&&useAI)||shootType!=='custom') && aiCount>0){ push(`AI editing × ${aiCount}`, NEW.AI*aiCount, null); }
+  // apply preset homes
+  if (presetHomes){
+    presetHomes.forEach((h, idx) => {
+      const i = String(idx+1);
+      const set = (k, v) => {
+        const node = container.querySelector(`[data-home="${i}"][data-k="${k}"]`);
+        if (!node) return;
+        if (node.type === "checkbox") node.checked = !!v;
+        else node.value = v ?? node.value;
+      };
+      set("accoId", h.accoId);
+      set("ext", h.ext);
+      set("int", h.int);
+      set("drone", h.drone);
+      set("acc", h.acc);
+      set("beds", h.beds);
+      set("accDays", h.accDays);
+    });
+  }
 
-  // Mileage (no legacy equivalent)
-  if(kmTotal>0){ push(`Mileage (${kmTotal} km)`, NEW.KM*kmTotal, null); }
+  container.querySelectorAll("input").forEach(inp => {
+    inp.addEventListener("input", () => { syncMultiSameRowVisibility(); recalc(); });
+  });
 
-  // Surcharges (legacy: Drone 51.50, Styling 10 per day; Large home and Snow have no explicit old rows)
-  if(beds>=4){ push('Large home surcharge', NEW.BIG, null); }
-  if(snow){ push('Snow surcharge', NEW.SNOW, null); }
-  if(drone){ push('Drone photography', NEW.DRONE, 51.5); }
-  // Styling optional (per day)
-  if (style) { push('Styling (per day)', NEW.STYLING, 10); }
+  syncMultiSameRowVisibility();
+  recalc();
+}
+function syncMultiSameRowVisibility(){
+  const container = el("ms_homesList");
+  const indices = new Set();
+  container.querySelectorAll('input[data-home]').forEach(inp => indices.add(inp.dataset.home));
 
-  // Render totals
-  el('rows').innerHTML = rows.join('') || `<tr><td colspan='4' class='muted'>Select a shoot type or options to begin…</td></tr>`;
-  el('totNew').textContent = money(newTotal);
-  el('totPrev').textContent = anyOld ? money(oldTotal) : '—';
-  const diff = anyOld ? (newTotal - oldTotal) : null;
-  const pct = (anyOld && oldTotal>0) ? (diff/oldTotal*100) : null;
-  const clsTot = (diff==null)?'muted':(diff>0?'pos':diff<0?'neg':'muted');
-  const pctTxt = (pct==null)? '' : ` (<span class="${clsTot}">${pct.toFixed(1).replace('.',',')}%</span>)`;
-  el('totDiff').innerHTML = (diff==null) ? '—' : ((diff>0?'+':'')+money(diff) + pctTxt);
-  el('bigNew').textContent = money(newTotal);
-  el('bigDiff').innerHTML = (diff==null)? '—' : ((diff>0?'+':'')+money(diff) + pctTxt);
-  el('bigDiff').className = 'big ' + ((diff==null)?'':(diff>0?'pos':diff<0?'neg':''));
+  indices.forEach(h => {
+    const hasInt = container.querySelector(`input[data-home="${h}"][data-k="int"]`)?.checked;
+    const bedsRow = container.querySelector(`.row[data-row="beds"][data-home="${h}"]`);
+    if (bedsRow) bedsRow.style.display = hasInt ? "grid" : "none";
+
+    const hasAcc = container.querySelector(`input[data-home="${h}"][data-k="acc"]`)?.checked;
+    const accRow = container.querySelector(`.row[data-row="accDays"][data-home="${h}"]`);
+    if (accRow) accRow.style.display = hasAcc ? "grid" : "none";
+  });
+}
+el("ms_buildHomesBtn").addEventListener("click", () => buildMultiSameHomes());
+
+/* =========================================================
+   Multi locations builder (FIXED)
+   - Locations are "locationCard"
+   - Homes are "homeCard"
+   - snapshot only selects ":scope > .locationCard"
+   ========================================================= */
+function buildMultiLocations(state){
+  const locCount = state?.locCount ?? clampInt(el("ml_locCount").value, 1);
+  const container = el("ml_locations");
+  container.innerHTML = "";
+
+  for (let l=1; l<=locCount; l++){
+    const loc = document.createElement("div");
+    loc.className = "locCard locationCard"; // IMPORTANT: locationCard distinct
+
+    loc.innerHTML = `
+      <div class="locHeader">
+        <div class="locTitle">Location ${l}</div>
+        <div class="inline">
+          <button type="button" class="ghost" data-loc="${l}" data-k="duplicate">Duplicate</button>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <label>Location name</label>
+        <input type="text" placeholder="e.g., Kirchberg Haus" data-loc="${l}" data-k="locName" />
+      </div>
+
+      <div class="row">
+        <label>One-way distance (km)</label>
+        <input type="number" min="0" value="0" data-loc="${l}" data-k="km" style="max-width:160px" />
+      </div>
+
+      <div class="row">
+        <label>Travel tier <span class="badge" id="ml_badge_${l}">0–50 km</span></label>
+        <div class="inline" style="min-width:280px">
+          <label class="chip" style="margin:0">
+            <input type="checkbox" data-loc="${l}" data-k="override" />
+            Override
+          </label>
+          <select data-loc="${l}" data-k="tier" disabled style="max-width:180px">
+            <option value="0_50">0–50 km</option>
+            <option value="51_100">51–100 km</option>
+            <option value="100_plus">100+ km</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <label>Number of homes</label>
+        <div class="inline">
+          <input type="number" min="1" value="2" data-loc="${l}" data-k="homeCount" style="max-width:110px" />
+          <button type="button" data-loc="${l}" data-k="buildHomes">Build homes</button>
+        </div>
+      </div>
+
+      <div id="ml_homes_${l}"></div>
+
+      <div class="row">
+        <label>Notes (optional)</label>
+        <input type="text" placeholder="e.g., access instructions, timing…" data-loc="${l}" data-k="notes" />
+      </div>
+    `;
+
+    container.appendChild(loc);
+  }
+
+  // restore state
+  if (state?.locations){
+    state.locations.forEach((loc, idx) => {
+      const l = String(idx+1);
+      const setVal = (k, v) => {
+        const node = container.querySelector(`[data-loc="${l}"][data-k="${k}"]`);
+        if (!node) return;
+        if (node.type === "checkbox") node.checked = !!v;
+        else node.value = v ?? node.value;
+      };
+      setVal("locName", loc.locName);
+      setVal("km", loc.km);
+      setVal("override", loc.override);
+      setVal("tier", loc.tier);
+      setVal("homeCount", loc.homeCount);
+      setVal("notes", loc.notes);
+
+      syncMultiLocTier(l);
+      if (loc.homes && loc.homes.length){
+        buildMultiLocHomes(l, loc.homes);
+      }
+    });
+  }
+
+  // wire events
+  container.querySelectorAll("input,select,button").forEach(node => {
+    const locId = node.dataset.loc;
+    const key = node.dataset.k;
+
+    if (node.tagName === "BUTTON" && key === "buildHomes"){
+      node.addEventListener("click", () => buildMultiLocHomes(locId));
+    } else if (node.tagName === "BUTTON" && key === "duplicate"){
+      node.addEventListener("click", () => duplicateLocation(locId));
+    } else {
+      node.addEventListener("input", () => { syncMultiLocTier(locId); recalc(); });
+    }
+  });
+
+  for (let l=1; l<=locCount; l++) syncMultiLocTier(String(l));
+  recalc();
 }
 
-// Initial render
-recalc();
+function syncMultiLocTier(locId){
+  const container = el("ml_locations");
+  const km = safeNum(container.querySelector(`input[data-loc="${locId}"][data-k="km"]`)?.value || 0);
+  const override = !!container.querySelector(`input[data-loc="${locId}"][data-k="override"]`)?.checked;
+  const tierSel = container.querySelector(`select[data-loc="${locId}"][data-k="tier"]`);
+  const badge = el(`ml_badge_${locId}`);
 
+  if (!tierSel) return "0_50";
+  tierSel.disabled = !override;
+
+  const tier = override ? tierSel.value : travelTierFromKm(km);
+  if (!override) tierSel.value = tier;
+  if (badge) badge.textContent = travelTierLabel(tier);
+  return tier;
+}
+
+function buildMultiLocHomes(locId, presetHomes){
+  const container = el("ml_locations");
+  const count = presetHomes ? presetHomes.length : clampInt(container.querySelector(`input[data-loc="${locId}"][data-k="homeCount"]`)?.value, 1);
+  const homesWrap = el(`ml_homes_${locId}`);
+  homesWrap.innerHTML = "";
+
+  for (let i=1; i<=count; i++){
+    const home = document.createElement("div");
+    home.className = "locCard homeCard"; // IMPORTANT: homeCard distinct
+
+    home.innerHTML = `
+      <div class="locHeader">
+        <div class="locTitle">Home ${i}</div>
+        <div class="muted" style="font-size:12px">Location ${locId}</div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <label>Acco ID (optional)</label>
+        <input type="text" placeholder="e.g., AT.12345.${String(i).padStart(2,'0')}" data-loc="${locId}" data-home="${i}" data-k="accoId" />
+      </div>
+
+      <div class="chips" style="margin-top:8px">
+        <label class="chip"><input type="checkbox" data-loc="${locId}" data-home="${i}" data-k="ext" checked /> Exterior</label>
+        <label class="chip"><input type="checkbox" data-loc="${locId}" data-home="${i}" data-k="int" checked /> Interior</label>
+        <label class="chip"><input type="checkbox" data-loc="${locId}" data-home="${i}" data-k="drone" /> Drone</label>
+        <label class="chip"><input type="checkbox" data-loc="${locId}" data-home="${i}" data-k="acc" /> Accessories</label>
+      </div>
+
+      <div class="row" data-row="beds" data-loc="${locId}" data-home="${i}">
+        <label>Bedrooms (for Interior)</label>
+        <input type="number" min="0" value="2" data-loc="${locId}" data-home="${i}" data-k="beds" />
+      </div>
+
+      <div class="row" data-row="accDays" data-loc="${locId}" data-home="${i}" style="display:none">
+        <label>Accessories days</label>
+        <input type="number" min="1" value="1" data-loc="${locId}" data-home="${i}" data-k="accDays" />
+      </div>
+    `;
+    homesWrap.appendChild(home);
+  }
+
+  // restore preset homes if provided
+  if (presetHomes){
+    presetHomes.forEach((h, idx) => {
+      const i = String(idx+1);
+      const set = (k, v) => {
+        const node = homesWrap.querySelector(`[data-loc="${locId}"][data-home="${i}"][data-k="${k}"]`);
+        if (!node) return;
+        if (node.type === "checkbox") node.checked = !!v;
+        else node.value = v ?? node.value;
+      };
+      set("accoId", h.accoId);
+      set("ext", h.ext);
+      set("int", h.int);
+      set("drone", h.drone);
+      set("acc", h.acc);
+      set("beds", h.beds);
+      set("accDays", h.accDays);
+    });
+  }
+
+  homesWrap.querySelectorAll("input").forEach(inp => {
+    inp.addEventListener("input", () => { syncMultiLocHomeVisibility(locId); recalc(); });
+  });
+
+  syncMultiLocHomeVisibility(locId);
+  recalc();
+}
+
+function syncMultiLocHomeVisibility(locId){
+  const homesWrap = el(`ml_homes_${locId}`);
+  if (!homesWrap) return;
+
+  const homeIds = new Set();
+  homesWrap.querySelectorAll('input[data-home]').forEach(inp => homeIds.add(inp.dataset.home));
+
+  homeIds.forEach(h => {
+    const hasInt = homesWrap.querySelector(`input[data-loc="${locId}"][data-home="${h}"][data-k="int"]`)?.checked;
+    const bedsRow = homesWrap.querySelector(`.row[data-row="beds"][data-loc="${locId}"][data-home="${h}"]`);
+    if (bedsRow) bedsRow.style.display = hasInt ? "grid" : "none";
+
+    const hasAcc = homesWrap.querySelector(`input[data-loc="${locId}"][data-home="${h}"][data-k="acc"]`)?.checked;
+    const accRow = homesWrap.querySelector(`.row[data-row="accDays"][data-loc="${locId}"][data-home="${h}"]`);
+    if (accRow) accRow.style.display = hasAcc ? "grid" : "none";
+  });
+}
+
+function snapshotMultiLocations(){
+  const container = el("ml_locations");
+
+  // ✅ FIX: only direct location cards, not home cards
+  const locCards = container.querySelectorAll(":scope > .locationCard");
+
+  const locations = [];
+  locCards.forEach(card => {
+    const any = card.querySelector("[data-loc]");
+    if (!any) return;
+    const locId = any.dataset.loc;
+
+    const get = (k) => container.querySelector(`[data-loc="${locId}"][data-k="${k}"]`);
+    const locName = get("locName")?.value || "";
+    const km = safeNum(get("km")?.value || 0);
+    const override = !!get("override")?.checked;
+    const tier = get("tier")?.value || travelTierFromKm(km);
+    const homeCount = clampInt(get("homeCount")?.value || 1, 1);
+    const notes = get("notes")?.value || "";
+
+    // homes
+    const homesWrap = el(`ml_homes_${locId}`);
+    const homes = [];
+    if (homesWrap && homesWrap.querySelector('input[data-home]')){
+      const homeIds = new Set();
+      homesWrap.querySelectorAll('input[data-home]').forEach(inp => homeIds.add(inp.dataset.home));
+      homeIds.forEach(h => {
+        const q = (k) => homesWrap.querySelector(`[data-loc="${locId}"][data-home="${h}"][data-k="${k}"]`);
+        homes.push({
+          accoId: q("accoId")?.value || "",
+          ext: !!q("ext")?.checked,
+          int: !!q("int")?.checked,
+          drone: !!q("drone")?.checked,
+          acc: !!q("acc")?.checked,
+          beds: safeNum(q("beds")?.value || 0),
+          accDays: safeNum(q("accDays")?.value || 1),
+        });
+      });
+    }
+
+    locations.push({ locName, km, override, tier, homeCount, notes, homes });
+  });
+
+  return { locCount: locations.length, locations };
+}
+
+function duplicateLocation(sourceLocId){
+  const state = snapshotMultiLocations();
+  if (!state.locations.length) return;
+
+  const srcIndex = Number(sourceLocId) - 1;
+  const src = state.locations[srcIndex];
+  if (!src) return;
+
+  const clone = JSON.parse(JSON.stringify(src));
+  clone.homes = (clone.homes || []).map(h => ({...h, accoId: ""}));
+
+  state.locations.push(clone);
+  state.locCount = state.locations.length;
+
+  el("ml_locCount").value = state.locCount;
+  buildMultiLocations(state);
+}
+
+el("ml_buildLocBtn").addEventListener("click", () => buildMultiLocations());
+el("ml_locCount").addEventListener("input", recalc);
+
+/* =========================================================
+   Validation hint
+   ========================================================= */
+function validateAndHint(messages){
+  const box = el("validationHint");
+  if (!messages.length){ box.style.display="none"; box.innerHTML=""; return; }
+  box.style.display="block";
+  box.innerHTML = `<div class="warn"><strong>Check:</strong> ${messages.join(" • ")}</div>`;
+}
+
+/* =========================================================
+   Presets
+   ========================================================= */
+function applyPreset(name){
+  if (name === "single_standard"){
+    el("sExt").checked = true;
+    el("sInt").checked = true;
+    el("sBeds").value = 2;
+    el("sDrone").checked = false;
+    el("sAcc").checked = false;
+    el("sAccDays").value = 1;
+  }
+  if (name === "single_exterior"){
+    el("sExt").checked = true;
+    el("sInt").checked = false;
+    el("sDrone").checked = false;
+    el("sAcc").checked = false;
+    el("sBeds").value = 0;
+  }
+  if (name === "single_family"){
+    el("sExt").checked = true;
+    el("sInt").checked = true;
+    el("sBeds").value = 4;
+    el("sDrone").checked = false;
+    el("sAcc").checked = false;
+  }
+  if (name === "single_drone"){
+    el("sDrone").checked = true;
+  }
+
+  if (name === "ms_parkday"){
+    el("ms_homeCount").value = 3;
+    buildMultiSameHomes();
+    document.querySelectorAll('#ms_homesList input[data-k="ext"]').forEach(i=>i.checked=true);
+    document.querySelectorAll('#ms_homesList input[data-k="int"]').forEach(i=>i.checked=true);
+    document.querySelectorAll('#ms_homesList input[data-k="beds"]').forEach(i=>i.value=2);
+    document.querySelectorAll('#ms_homesList input[data-k="drone"]').forEach(i=>i.checked=false);
+    document.querySelectorAll('#ms_homesList input[data-k="acc"]').forEach(i=>i.checked=false);
+    syncMultiSameRowVisibility();
+  }
+  if (name === "ms_standard_all"){
+    if (!el("ms_homesList").querySelector('input[data-home]')) buildMultiSameHomes();
+    document.querySelectorAll('#ms_homesList input[data-k="ext"]').forEach(i=>i.checked=true);
+    document.querySelectorAll('#ms_homesList input[data-k="int"]').forEach(i=>i.checked=true);
+    document.querySelectorAll('#ms_homesList input[data-k="beds"]').forEach(i=>i.value=2);
+    document.querySelectorAll('#ms_homesList input[data-k="drone"]').forEach(i=>i.checked=false);
+    document.querySelectorAll('#ms_homesList input[data-k="acc"]').forEach(i=>i.checked=false);
+    syncMultiSameRowVisibility();
+  }
+  if (name === "ms_add_drone_all"){
+    if (!el("ms_homesList").querySelector('input[data-home]')) buildMultiSameHomes();
+    document.querySelectorAll('#ms_homesList input[data-k="drone"]').forEach(i=>i.checked=true);
+  }
+
+  syncSingleUI();
+  syncTravelTier("s");
+  syncTravelTier("ms");
+  recalc();
+}
+document.querySelectorAll("[data-preset]").forEach(btn => {
+  btn.addEventListener("click", () => applyPreset(btn.dataset.preset));
+});
+
+/* =========================================================
+   Core calc
+   ========================================================= */
+function recalc(){
+  const prices = getPricing();
+  const rows = [];
+  let total = 0;
+  const messages = [];
+  let scopeText = "—";
+
+  const ctry = el("country").value;
+  const cfg = PRICING_BY_COUNTRY[ctry];
+
+  function travelCost(tier){
+    if (!prices) return 0;
+    return prices.travel?.[tier] || 0;
+  }
+
+  if (mode === "single"){
+    const tier = syncTravelTier("s");
+    const km = safeNum(el("s_km").value);
+    const tCost = travelCost(tier);
+
+    rows.push({label:`Travel (${travelTierLabel(tier)} • one-way ${km} km)`, amount: tCost, meta:"Charged once per location"});
+    total += tCost;
+
+    const ext = el("sExt").checked;
+    const intr = el("sInt").checked;
+    if (!ext && !intr) messages.push("Select Exterior and/or Interior");
+
+    const acco = (el("s_accoId").value || "").trim();
+    const homeLabel = acco ? `Home (${acco})` : `Home`;
+
+    if (ext){ rows.push({label:`${homeLabel} • Exterior`, amount: prices ? prices.exterior : 0}); total += prices ? prices.exterior : 0; }
+    if (intr){
+      const beds = safeNum(el("sBeds").value);
+      if (beds <= 0) messages.push("Interior selected but bedrooms is 0");
+      const c = calcInterior(prices, beds);
+      const meta = (beds<=2) ? `Up to 2 bedrooms` : `${beds} bedrooms (includes +€${(beds-2)*(prices?prices.extra_bedroom:0)})`;
+      rows.push({label:`${homeLabel} • Interior`, amount: c, meta});
+      total += c;
+    }
+    if (el("sDrone").checked){ rows.push({label:`${homeLabel} • Drone`, amount: prices ? prices.drone : 0}); total += prices ? prices.drone : 0; }
+    if (el("sAcc").checked){
+      const days = clampInt(el("sAccDays").value, 1);
+      const c = (prices ? prices.accessories_per_day : 0) * days;
+      rows.push({label:`${homeLabel} • Accessories × ${days} day${days>1?'s':''}`, amount: c});
+      total += c;
+    }
+
+    const loc = (el("s_locationName").value || "").trim();
+    scopeText = `Single home${loc ? " • "+loc : ""}${acco ? " • "+acco : ""} • ${cfg.label}`;
+  }
+
+  if (mode === "multi_same"){
+    const tier = syncTravelTier("ms");
+    const km = safeNum(el("ms_km").value);
+    const tCost = travelCost(tier);
+
+    rows.push({label:`Travel (${travelTierLabel(tier)} • one-way ${km} km)`, amount: tCost, meta:"Charged once per location"});
+    total += tCost;
+
+    const container = el("ms_homesList");
+    const homeSet = new Set();
+    container.querySelectorAll('input[data-home]').forEach(inp => homeSet.add(inp.dataset.home));
+
+    if (!homeSet.size){
+      messages.push("Build the homes list");
+      rows.push({label:`Homes`, amount:0, meta:"Click “Build list” to add homes."});
+    } else {
+      let idx = 0;
+      homeSet.forEach(h => {
+        idx++;
+        const acco = (container.querySelector(`input[data-home="${h}"][data-k="accoId"]`)?.value || "").trim();
+        const prefix = acco ? `Home ${idx} (${acco})` : `Home ${idx}`;
+
+        const ext = !!container.querySelector(`input[data-home="${h}"][data-k="ext"]`)?.checked;
+        const intr = !!container.querySelector(`input[data-home="${h}"][data-k="int"]`)?.checked;
+        const drone = !!container.querySelector(`input[data-home="${h}"][data-k="drone"]`)?.checked;
+        const acc = !!container.querySelector(`input[data-home="${h}"][data-k="acc"]`)?.checked;
+
+        if (!ext && !intr) messages.push(`${prefix}: select Exterior and/or Interior`);
+
+        const beds = safeNum(container.querySelector(`input[data-home="${h}"][data-k="beds"]`)?.value || 0);
+        if (intr && beds<=0) messages.push(`${prefix}: Interior selected but bedrooms is 0`);
+
+        const accDays = safeNum(container.querySelector(`input[data-home="${h}"][data-k="accDays"]`)?.value || 1);
+
+        const homeTotal = calcHomeTotal(prices, {ext,int:intr,beds,drone,acc,accDays});
+        const parts = [];
+        if (ext) parts.push("Exterior");
+        if (intr) parts.push(beds<=2 ? "Interior (≤2 beds)" : `Interior (${beds} beds)`);
+        if (drone) parts.push("Drone");
+        if (acc) parts.push(`Accessories (${clampInt(accDays,1)}d)`);
+
+        rows.push({label: prefix, amount: homeTotal, meta: parts.length ? parts.join(" • ") : "—"});
+        total += homeTotal;
+      });
+    }
+
+    const loc = (el("ms_locationName").value || "").trim();
+    scopeText = `${homeSet.size ? homeSet.size : 0} homes (same location)${loc ? " • "+loc : ""} • ${cfg.label}`;
+  }
+
+  if (mode === "multi_locations"){
+    const state = snapshotMultiLocations();
+
+    if (!state.locations.length){
+      messages.push("Build the locations");
+      rows.push({label:"Locations", amount:0, meta:"Click “Build locations” to add locations."});
+    } else {
+      state.locations.forEach((loc, i) => {
+        const tier = loc.override ? loc.tier : travelTierFromKm(loc.km);
+        const tCost = travelCost(tier);
+
+        rows.push({label:`Location ${i+1}${loc.locName ? " • "+loc.locName : ""} • Travel (${travelTierLabel(tier)} • one-way ${loc.km} km)`, amount: tCost, meta:"Charged once for this location"});
+        total += tCost;
+
+        if (!loc.homes || !loc.homes.length){
+          messages.push(`Location ${i+1}: build homes`);
+          rows.push({label:`↳ Homes`, amount:0, meta:"Click “Build homes” for this location."});
+        } else {
+          loc.homes.forEach((h, idx) => {
+            const homeTotal = calcHomeTotal(prices, h);
+            const parts = [];
+            if (h.ext) parts.push("Exterior");
+            if (h.int) parts.push(h.beds<=2 ? "Interior (≤2 beds)" : `Interior (${h.beds} beds)`);
+            if (h.drone) parts.push("Drone");
+            if (h.acc) parts.push(`Accessories (${clampInt(h.accDays,1)}d)`);
+            const prefix = h.accoId ? `↳ Home ${idx+1} (${h.accoId})` : `↳ Home ${idx+1}`;
+            rows.push({label: prefix, amount: homeTotal, meta: parts.join(" • ")});
+            total += homeTotal;
+          });
+        }
+
+        if (loc.notes){
+          rows.push({label:`Location ${i+1} note`, amount:0, meta: loc.notes});
+        }
+      });
+
+      scopeText = `Multiple locations (${state.locations.length}) • ${cfg.label}`;
+    }
+  }
+
+  el("rows").innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.label}${r.meta ? `<div class="mini muted">${r.meta}</div>` : ``}</td>
+      <td class="right">${money(r.amount)}</td>
+    </tr>
+  `).join("");
+
+  el("totalCell").textContent = money(total);
+  el("bigTotal").textContent = money(total);
+  el("scopeLine").textContent = scopeText;
+
+  validateAndHint(messages);
+}
+
+/* =========================================================
+   Copy quote + PDF
+   ========================================================= */
+function buildQuoteModel(){
+  const prices = getPricing();
+  const ctry = el("country").value;
+  const cfg = PRICING_BY_COUNTRY[ctry];
+
+  const model = {
+    title: `Villa for You – Photography Quote (${cfg.label})`,
+    country: ctry,
+    mode,
+    total: 0,
+    sections: [],
+    generatedAt: new Date().toISOString()
+  };
+  const push = (title, lines) => model.sections.push({title, lines});
+
+  const tCost = (tier) => prices ? (prices.travel?.[tier] || 0) : 0;
+
+  if (mode === "single"){
+    const loc = (el("s_locationName").value || "").trim();
+    const acco = (el("s_accoId").value || "").trim();
+    const km = safeNum(el("s_km").value);
+    const tier = syncTravelTier("s");
+    const travel = tCost(tier);
+
+    const lines = [];
+    lines.push({label:`Travel (${travelTierLabel(tier)} • one-way ${km} km)`, amount: travel, meta:"Charged once per location"});
+    model.total += travel;
+
+    const homePrefix = acco ? `Home (${acco})` : "Home";
+    if (el("sExt").checked){ lines.push({label:`${homePrefix} • Exterior`, amount: prices ? prices.exterior : 0}); model.total += prices ? prices.exterior : 0; }
+    if (el("sInt").checked){
+      const beds = safeNum(el("sBeds").value);
+      const c = calcInterior(prices, beds);
+      const meta = (!prices) ? "TBD" : (beds<=2 ? "Up to 2 bedrooms" : `${beds} bedrooms (+€${(beds-2)*prices.extra_bedroom})`);
+      lines.push({label:`${homePrefix} • Interior`, amount: c, meta}); model.total += c;
+    }
+    if (el("sDrone").checked){ lines.push({label:`${homePrefix} • Drone`, amount: prices ? prices.drone : 0}); model.total += prices ? prices.drone : 0; }
+    if (el("sAcc").checked){
+      const days = clampInt(el("sAccDays").value,1);
+      const c = (prices ? prices.accessories_per_day : 0) * days;
+      lines.push({label:`${homePrefix} • Accessories × ${days} day${days>1?'s':''}`, amount: c}); model.total += c;
+    }
+
+    const notes = (el("s_notes").value || "").trim();
+    push(`Single home${loc ? " • "+loc : ""}${acco ? " • "+acco : ""}`, lines);
+    if (notes) push("Notes", [{label: notes, amount: 0}]);
+  }
+
+  if (mode === "multi_same"){
+    const loc = (el("ms_locationName").value || "").trim();
+    const km = safeNum(el("ms_km").value);
+    const tier = syncTravelTier("ms");
+    const travel = tCost(tier);
+
+    const lines = [];
+    lines.push({label:`Travel (${travelTierLabel(tier)} • one-way ${km} km)`, amount: travel, meta:"Charged once per location"});
+    model.total += travel;
+
+    const container = el("ms_homesList");
+    const homeSet = new Set();
+    container.querySelectorAll('input[data-home]').forEach(inp => homeSet.add(inp.dataset.home));
+
+    let idx = 0;
+    homeSet.forEach(h => {
+      idx++;
+      const acco = (container.querySelector(`input[data-home="${h}"][data-k="accoId"]`)?.value || "").trim();
+      const prefix = acco ? `Home ${idx} (${acco})` : `Home ${idx}`;
+
+      const ext = !!container.querySelector(`input[data-home="${h}"][data-k="ext"]`)?.checked;
+      const intr = !!container.querySelector(`input[data-home="${h}"][data-k="int"]`)?.checked;
+      const drone = !!container.querySelector(`input[data-home="${h}"][data-k="drone"]`)?.checked;
+      const acc = !!container.querySelector(`input[data-home="${h}"][data-k="acc"]`)?.checked;
+      const beds = safeNum(container.querySelector(`input[data-home="${h}"][data-k="beds"]`)?.value || 0);
+      const accDays = safeNum(container.querySelector(`input[data-home="${h}"][data-k="accDays"]`)?.value || 1);
+
+      const homeTotal = calcHomeTotal(prices, {ext,int:intr,beds,drone,acc,accDays});
+      const meta = [
+        ext ? "Exterior" : null,
+        intr ? (beds<=2 ? "Interior (≤2 beds)" : `Interior (${beds} beds)`) : null,
+        drone ? "Drone" : null,
+        acc ? `Accessories (${clampInt(accDays,1)}d)` : null,
+      ].filter(Boolean).join(" • ");
+
+      model.total += homeTotal;
+      lines.push({label: prefix, amount: homeTotal, meta});
+    });
+
+    push(`Multiple homes (same location)${loc ? " • "+loc : ""}`, lines);
+    const notes = (el("ms_notes").value || "").trim();
+    if (notes) push("Notes", [{label: notes, amount: 0}]);
+  }
+
+  if (mode === "multi_locations"){
+    const state = snapshotMultiLocations();
+    state.locations.forEach((loc, i) => {
+      const tier = loc.override ? loc.tier : travelTierFromKm(loc.km);
+      const travel = tCost(tier);
+
+      const lines = [];
+      lines.push({label:`Travel (${travelTierLabel(tier)} • one-way ${loc.km} km)`, amount: travel, meta:"Charged once for this location"});
+      model.total += travel;
+
+      (loc.homes || []).forEach((h, idx) => {
+        const homeTotal = calcHomeTotal(prices, h);
+        const meta = [
+          h.ext ? "Exterior" : null,
+          h.int ? (h.beds<=2 ? "Interior (≤2 beds)" : `Interior (${h.beds} beds)`) : null,
+          h.drone ? "Drone" : null,
+          h.acc ? `Accessories (${clampInt(h.accDays,1)}d)` : null,
+        ].filter(Boolean).join(" • ");
+        const prefix = h.accoId ? `Home ${idx+1} (${h.accoId})` : `Home ${idx+1}`;
+        lines.push({label: prefix, amount: homeTotal, meta});
+        model.total += homeTotal;
+      });
+
+      if (loc.notes) lines.push({label:"Notes", amount:0, meta: loc.notes});
+      push(`Location ${i+1}${loc.locName ? " • "+loc.locName : ""}`, lines);
+    });
+  }
+
+  return model;
+}
+
+function quoteTextFromModel(model){
+  const lines = [];
+  lines.push(model.title);
+  lines.push("------------------------------------------");
+  model.sections.forEach(sec => {
+    lines.push("");
+    lines.push(sec.title);
+    sec.lines.forEach(l => {
+      const meta = l.meta ? ` (${l.meta})` : "";
+      lines.push(`- ${l.label}: ${money(l.amount)}${meta}`);
+    });
+  });
+  lines.push("");
+  lines.push(`TOTAL: ${money(model.total)}`);
+  lines.push("");
+  lines.push("Deliverables: 30–40 photos per home (editing included).");
+  return lines.join("\n");
+}
+
+async function copyQuote(){
+  const model = buildQuoteModel();
+  const text = quoteTextFromModel(model);
+  try{
+    await navigator.clipboard.writeText(text);
+    el("copyBtn").textContent = "Copied ✓";
+    setTimeout(()=> el("copyBtn").textContent = "Copy quote", 1200);
+  }catch(e){
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    el("copyBtn").textContent = "Copied ✓";
+    setTimeout(()=> el("copyBtn").textContent = "Copy quote", 1200);
+  }
+}
+
+function exportPdf(){
+  const model = buildQuoteModel();
+
+  const html = `
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>VfY Photography Quote</title>
+  <style>
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;margin:32px;color:#111}
+    h1{margin:0 0 6px;font-size:22px}
+    .sub{color:#444;margin:0 0 18px;font-size:13px}
+    .box{border:1px solid #ddd;border-radius:12px;padding:14px;margin:12px 0}
+    .secTitle{font-weight:800;margin:0 0 8px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px 10px;border-bottom:1px solid #eee;font-size:13px;vertical-align:top}
+    th{text-align:left;color:#555}
+    .right{text-align:right}
+    .meta{color:#666;font-size:12px;margin-top:2px}
+    .total{margin-top:14px;text-align:right;font-size:16px;font-weight:900}
+    .footer{margin-top:18px;color:#444;font-size:12px}
+    @media print{ body{margin:18px} }
+  </style>
+</head>
+<body>
+  <h1>${model.title}</h1>
+  <p class="sub">Deliverables: 30–40 photos per home (editing included).</p>
+
+  ${model.sections.map(sec => `
+    <div class="box">
+      <div class="secTitle">${sec.title}</div>
+      <table>
+        <thead><tr><th>Item</th><th class="right">Amount (€)</th></tr></thead>
+        <tbody>
+          ${sec.lines.map(l => `
+            <tr>
+              <td>${l.label}${l.meta ? `<div class="meta">${l.meta}</div>` : ``}</td>
+              <td class="right">${money(l.amount)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `).join("")}
+
+  <div class="total">TOTAL: ${money(model.total)}</div>
+  <div class="footer">Country: ${model.country}. This tool is for estimation purposes only. No rights can be derived from these prices. </div>
+  <script>window.onload=()=>window.print();<\/script>
+</body>
+</html>
+  `.trim();
+
+  const w = window.open("", "_blank");
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+}
+
+/* =========================================================
+   SAVE LINK (state in URL hash)
+   ========================================================= */
+function base64UrlEncode(str){
+  const b64 = btoa(unescape(encodeURIComponent(str)));
+  return b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function base64UrlDecode(str){
+  const pad = str.length % 4 ? '='.repeat(4 - (str.length % 4)) : '';
+  const b64 = (str + pad).replace(/-/g,'+').replace(/_/g,'/');
+  return decodeURIComponent(escape(atob(b64)));
+}
+
+function getState(){
+  const state = {
+    v: 1,
+    country: el("country").value,
+    mode,
+    single: {
+      locationName: el("s_locationName").value,
+      km: safeNum(el("s_km").value),
+      tierOverride: !!el("s_tierOverride").checked,
+      tier: el("s_tierSelect").value,
+      accoId: el("s_accoId").value,
+      ext: !!el("sExt").checked,
+      int: !!el("sInt").checked,
+      drone: !!el("sDrone").checked,
+      acc: !!el("sAcc").checked,
+      beds: safeNum(el("sBeds").value),
+      accDays: safeNum(el("sAccDays").value),
+      notes: el("s_notes").value,
+    },
+    multiSame: {
+      locationName: el("ms_locationName").value,
+      km: safeNum(el("ms_km").value),
+      tierOverride: !!el("ms_tierOverride").checked,
+      tier: el("ms_tierSelect").value,
+      notes: el("ms_notes").value,
+      homes: []
+    },
+    multiLoc: {
+      locCount: clampInt(el("ml_locCount").value, 1),
+      locations: []
+    }
+  };
+
+  // ms homes
+  const msContainer = el("ms_homesList");
+  if (msContainer.querySelector('input[data-home]')){
+    const homeIds = new Set();
+    msContainer.querySelectorAll('input[data-home]').forEach(inp => homeIds.add(inp.dataset.home));
+    homeIds.forEach(h => {
+      const q = (k) => msContainer.querySelector(`input[data-home="${h}"][data-k="${k}"]`);
+      state.multiSame.homes.push({
+        accoId: q("accoId")?.value || "",
+        ext: !!q("ext")?.checked,
+        int: !!q("int")?.checked,
+        drone: !!q("drone")?.checked,
+        acc: !!q("acc")?.checked,
+        beds: safeNum(q("beds")?.value || 0),
+        accDays: safeNum(q("accDays")?.value || 1),
+      });
+    });
+  }
+
+  // ml locations via snapshot
+  const snap = snapshotMultiLocations();
+  state.multiLoc.locCount = snap.locCount || state.multiLoc.locCount;
+  state.multiLoc.locations = snap.locations || [];
+
+  return state;
+}
+
+function applyState(state){
+  if (!state || typeof state !== "object") return;
+
+  // country
+  if (state.country && PRICING_BY_COUNTRY[state.country]) el("country").value = state.country;
+  setPricingHints();
+
+  // mode
+  if (state.mode) mode = state.mode;
+  modeBtns.forEach(x => x.classList.remove("active"));
+  const activeBtn = document.querySelector(`#modeBar .pill[data-mode="${mode}"]`);
+  if (activeBtn) activeBtn.classList.add("active");
+  el("singlePanel").style.display     = (mode==="single") ? "block" : "none";
+  el("multiSamePanel").style.display  = (mode==="multi_same") ? "block" : "none";
+  el("multiLocPanel").style.display   = (mode==="multi_locations") ? "block" : "none";
+
+  // single
+  if (state.single){
+    el("s_locationName").value = state.single.locationName ?? "";
+    el("s_km").value = state.single.km ?? 0;
+    el("s_tierOverride").checked = !!state.single.tierOverride;
+    el("s_tierSelect").value = state.single.tier ?? "0_50";
+    el("s_accoId").value = state.single.accoId ?? "";
+    el("sExt").checked = !!state.single.ext;
+    el("sInt").checked = !!state.single.int;
+    el("sDrone").checked = !!state.single.drone;
+    el("sAcc").checked = !!state.single.acc;
+    el("sBeds").value = state.single.beds ?? 0;
+    el("sAccDays").value = state.single.accDays ?? 1;
+    el("s_notes").value = state.single.notes ?? "";
+    syncSingleUI();
+    syncTravelTier("s");
+  }
+
+  // multi same
+  if (state.multiSame){
+    el("ms_locationName").value = state.multiSame.locationName ?? "";
+    el("ms_km").value = state.multiSame.km ?? 0;
+    el("ms_tierOverride").checked = !!state.multiSame.tierOverride;
+    el("ms_tierSelect").value = state.multiSame.tier ?? "0_50";
+    el("ms_notes").value = state.multiSame.notes ?? "";
+    syncTravelTier("ms");
+
+    if (Array.isArray(state.multiSame.homes) && state.multiSame.homes.length){
+      el("ms_homeCount").value = state.multiSame.homes.length;
+      buildMultiSameHomes(state.multiSame.homes);
+    } else {
+      el("ms_homesList").innerHTML = "";
+    }
+  }
+
+  // multi locations
+  if (state.multiLoc){
+    el("ml_locCount").value = state.multiLoc.locCount ?? 1;
+    if (Array.isArray(state.multiLoc.locations) && state.multiLoc.locations.length){
+      buildMultiLocations({ locCount: state.multiLoc.locations.length, locations: state.multiLoc.locations });
+    } else {
+      el("ml_locations").innerHTML = "";
+    }
+  }
+
+  recalc();
+}
+
+async function saveLink(){
+  const state = getState();
+  const encoded = base64UrlEncode(JSON.stringify(state));
+  const url = new URL(window.location.href);
+  url.hash = `state=${encoded}`;
+
+  try{
+    await navigator.clipboard.writeText(url.toString());
+    el("saveLinkBtn").textContent = "Link copied ✓";
+    setTimeout(()=> el("saveLinkBtn").textContent = "Save link", 1200);
+  }catch(e){
+    // fallback
+    prompt("Copy this link:", url.toString());
+  }
+}
+
+function loadStateFromUrl(){
+  const hash = window.location.hash || "";
+  const m = hash.match(/state=([^&]+)/);
+  if (!m) return false;
+  try{
+    const json = base64UrlDecode(m[1]);
+    const state = JSON.parse(json);
+    applyState(state);
+    return true;
+  }catch(e){
+    console.warn("Failed to load state:", e);
+    return false;
+  }
+}
+
+/* =========================================================
+   Buttons & reset
+   ========================================================= */
+el("copyBtn").addEventListener("click", copyQuote);
+el("saveLinkBtn").addEventListener("click", saveLink);
+el("exportPdfBtn").addEventListener("click", exportPdf);
+
+function resetAll(){
+  window.location.hash = "";
+  mode = "single";
+  modeBtns.forEach(x => x.classList.remove("active"));
+  document.querySelector('#modeBar .pill[data-mode="single"]').classList.add("active");
+
+  el("country").value = "AT";
+  setPricingHints();
+
+  el("singlePanel").style.display = "block";
+  el("multiSamePanel").style.display = "none";
+  el("multiLocPanel").style.display = "none";
+
+  el("s_locationName").value = "";
+  el("s_accoId").value = "";
+  el("s_km").value = 0;
+  el("s_tierOverride").checked = false;
+  el("s_tierSelect").value = "0_50";
+  el("sExt").checked = true;
+  el("sInt").checked = true;
+  el("sDrone").checked = false;
+  el("sAcc").checked = false;
+  el("sBeds").value = 2;
+  el("sAccDays").value = 1;
+  el("s_notes").value = "";
+
+  el("ms_locationName").value = "";
+  el("ms_km").value = 0;
+  el("ms_tierOverride").checked = false;
+  el("ms_tierSelect").value = "0_50";
+  el("ms_homeCount").value = 3;
+  el("ms_homesList").innerHTML = "";
+  el("ms_notes").value = "";
+
+  el("ml_locCount").value = 2;
+  el("ml_locations").innerHTML = "";
+
+  syncSingleUI();
+  syncTravelTier("s");
+  syncTravelTier("ms");
+  recalc();
+}
+el("resetBtn").addEventListener("click", resetAll);
+
+/* =========================================================
+   Country change
+   ========================================================= */
+el("country").addEventListener("input", () => {
+  setPricingHints();
+  recalc();
+});
+
+/* =========================================================
+   Init
+   ========================================================= */
+setPricingHints();
+syncSingleUI();
+syncTravelTier("s");
+syncTravelTier("ms");
+
+// Try load from URL; otherwise default init
+loadStateFromUrl();
+recalc();
 
 </script>
 </body>
