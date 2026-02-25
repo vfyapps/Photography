@@ -361,8 +361,8 @@
 <script>
 /* =========================================================
    PRICING CONFIG (Multi-country ready)
-   - AT: tier travel (unchanged behavior)
-   - NL/DE/FR/BE: €0.20/km round trip travel + interior base up to 3 bedrooms
+   - AT: tier travel (unchanged behavior) + interior extra bedroom continues (no cap)
+   - NL/DE/FR/BE: €0.26/km round trip travel + interior extra bedroom +€20 capped at 8 bedrooms
    ========================================================= */
 const PRICING_BY_COUNTRY = {
   AT: {
@@ -448,11 +448,17 @@ function travelTierLabel(tier){
   if (tier === "51_100") return "51–100 km";
   return "100+ km";
 }
+
+/* IMPORTANT: we attach _country to the returned prices so calculations can be country-aware
+   without making calc functions depend on the DOM. */
 function getPricing(){
   const c = el("country").value;
   const cfg = PRICING_BY_COUNTRY[c];
-  return cfg?.prices || null;
+  const p = cfg?.prices || null;
+  if (!p) return null;
+  return { ...p, _country: c };
 }
+
 function getTravelType(prices){
   return prices?.travel?.type || "tier";
 }
@@ -485,6 +491,7 @@ function setPricingHints(){
 
   if (getTravelType(prices) === "per_km_roundtrip"){
     s += ` Travel: €${prices.travel.rate_per_km}/km (round trip).`;
+    s += ` Interior cap: +bedroom fee applies up to 8 bedrooms (except AT).`;
   }
 
   summary.textContent = s;
@@ -557,11 +564,23 @@ function syncTravelTier(panelPrefix){
 
 /* =========================================================
    Pricing calculations (country-aware)
+   RULE:
+   - AT: extra bedroom continues infinitely (+10)
+   - NL/DE/FR/BE: extra bedroom applies only up to 8 bedrooms (cap)
    ========================================================= */
+function effectiveBedroomsForPricing(prices, bedroomsRaw){
+  const ctry = prices?._country;
+  const beds = Math.max(0, safeNum(bedroomsRaw));
+  if (ctry === "AT") return beds;
+  return Math.min(beds, 8);
+}
+
 function calcInterior(prices, bedrooms){
   if (!prices) return 0;
-  const beds = Math.max(0, safeNum(bedrooms));
-  if (beds <= 0) return 0;
+  const bedsRaw = Math.max(0, safeNum(bedrooms));
+  if (bedsRaw <= 0) return 0;
+
+  const beds = effectiveBedroomsForPricing(prices, bedsRaw);
 
   const inc = prices.interior?.included_bedrooms ?? 2;
   const base = prices.interior?.base ?? 0;
@@ -1103,13 +1122,22 @@ function recalc(){
 
     if (ext){ rows.push({label:`${homeLabel} • Exterior`, amount: prices ? prices.exterior : 0}); total += prices ? prices.exterior : 0; }
     if (intr){
-      const beds = safeNum(el("sBeds").value);
-      if (beds <= 0) messages.push("Interior selected but bedrooms is 0");
-      const c = calcInterior(prices, beds);
+      const bedsRaw = safeNum(el("sBeds").value);
+      if (bedsRaw <= 0) messages.push("Interior selected but bedrooms is 0");
+
+      const bedsEff = effectiveBedroomsForPricing(prices, bedsRaw);
+      const c = calcInterior(prices, bedsRaw);
 
       let meta = `Up to ${inc} bedrooms`;
-      if (beds > inc){
-        meta = `${beds} bedrooms (includes +€${(beds - inc) * extra})`;
+      if (bedsRaw > inc){
+        const chargedExtraBeds = Math.max(0, bedsEff - inc);
+        const extraAmt = chargedExtraBeds * extra;
+
+        if (prices?._country !== "AT" && bedsRaw > 8){
+          meta = `${bedsRaw} bedrooms (cap at 8 • includes +€${extraAmt})`;
+        } else {
+          meta = `${bedsRaw} bedrooms (includes +€${extraAmt})`;
+        }
       }
 
       rows.push({label:`${homeLabel} • Interior`, amount: c, meta});
@@ -1166,7 +1194,11 @@ function recalc(){
         const homeTotal = calcHomeTotal(prices, {ext,int:intr,beds,drone,acc,accDays});
         const parts = [];
         if (ext) parts.push("Exterior");
-        if (intr) parts.push(beds<=inc ? `Interior (≤${inc} beds)` : `Interior (${beds} beds)`);
+        if (intr) {
+          const bedsEff = effectiveBedroomsForPricing(prices, beds);
+          if (prices?._country !== "AT" && beds > 8) parts.push(`Interior (${beds} beds • cap at 8)`);
+          else parts.push(bedsEff<=inc ? `Interior (≤${inc} beds)` : `Interior (${beds} beds)`);
+        }
         if (drone) parts.push("Drone");
         if (acc) parts.push(`Accessories (${clampInt(accDays,1)}d)`);
 
@@ -1206,7 +1238,11 @@ function recalc(){
             const homeTotal = calcHomeTotal(prices, h);
             const parts = [];
             if (h.ext) parts.push("Exterior");
-            if (h.int) parts.push(h.beds<=inc ? `Interior (≤${inc} beds)` : `Interior (${h.beds} beds)`);
+            if (h.int) {
+              const bedsEff = effectiveBedroomsForPricing(prices, h.beds);
+              if (prices?._country !== "AT" && h.beds > 8) parts.push(`Interior (${h.beds} beds • cap at 8)`);
+              else parts.push(bedsEff<=inc ? `Interior (≤${inc} beds)` : `Interior (${h.beds} beds)`);
+            }
             if (h.drone) parts.push("Drone");
             if (h.acc) parts.push(`Accessories (${clampInt(h.accDays,1)}d)`);
             const prefix = h.accoId ? `↳ Home ${idx+1} (${h.accoId})` : `↳ Home ${idx+1}`;
@@ -1273,12 +1309,20 @@ function buildQuoteModel(){
     const homePrefix = acco ? `Home (${acco})` : "Home";
     if (el("sExt").checked){ lines.push({label:`${homePrefix} • Exterior`, amount: prices ? prices.exterior : 0}); model.total += prices ? prices.exterior : 0; }
     if (el("sInt").checked){
-      const beds = safeNum(el("sBeds").value);
-      const c = calcInterior(prices, beds);
+      const bedsRaw = safeNum(el("sBeds").value);
+      const bedsEff = effectiveBedroomsForPricing(prices, bedsRaw);
+      const c = calcInterior(prices, bedsRaw);
 
       let meta = (!prices) ? "TBD" : `Up to ${inc} bedrooms`;
-      if (prices && beds > inc){
-        meta = `${beds} bedrooms (+€${(beds-inc)*extra})`;
+      if (prices && bedsRaw > inc){
+        const chargedExtraBeds = Math.max(0, bedsEff - inc);
+        const extraAmt = chargedExtraBeds * extra;
+
+        if (prices?._country !== "AT" && bedsRaw > 8){
+          meta = `${bedsRaw} bedrooms (cap at 8 • +€${extraAmt})`;
+        } else {
+          meta = `${bedsRaw} bedrooms (+€${extraAmt})`;
+        }
       }
 
       lines.push({label:`${homePrefix} • Interior`, amount: c, meta}); model.total += c;
@@ -1319,13 +1363,15 @@ function buildQuoteModel(){
       const intr = !!container.querySelector(`input[data-home="${h}"][data-k="int"]`)?.checked;
       const drone = !!container.querySelector(`input[data-home="${h}"][data-k="drone"]`)?.checked;
       const acc = !!container.querySelector(`input[data-home="${h}"][data-k="acc"]`)?.checked;
-      const beds = safeNum(container.querySelector(`input[data-home="${h}"][data-k="beds"]`)?.value || 0);
+      const bedsRaw = safeNum(container.querySelector(`input[data-home="${h}"][data-k="beds"]`)?.value || 0);
       const accDays = safeNum(container.querySelector(`input[data-home="${h}"][data-k="accDays"]`)?.value || 1);
 
-      const homeTotal = calcHomeTotal(prices, {ext,int:intr,beds,drone,acc,accDays});
+      const homeTotal = calcHomeTotal(prices, {ext,int:intr,beds:bedsRaw,drone,acc,accDays});
+      const bedsEff = effectiveBedroomsForPricing(prices, bedsRaw);
+
       const meta = [
         ext ? "Exterior" : null,
-        intr ? (beds<=inc ? `Interior (≤${inc} beds)` : `Interior (${beds} beds)`) : null,
+        intr ? (prices?._country !== "AT" && bedsRaw > 8 ? `Interior (${bedsRaw} beds • cap at 8)` : (bedsEff<=inc ? `Interior (≤${inc} beds)` : `Interior (${bedsRaw} beds)`)) : null,
         drone ? "Drone" : null,
         acc ? `Accessories (${clampInt(accDays,1)}d)` : null,
       ].filter(Boolean).join(" • ");
@@ -1351,12 +1397,15 @@ function buildQuoteModel(){
 
       (loc.homes || []).forEach((h, idx) => {
         const homeTotal = calcHomeTotal(prices, h);
+        const bedsEff = effectiveBedroomsForPricing(prices, h.beds);
+
         const meta = [
           h.ext ? "Exterior" : null,
-          h.int ? (h.beds<=inc ? `Interior (≤${inc} beds)` : `Interior (${h.beds} beds)`) : null,
+          h.int ? (prices?._country !== "AT" && h.beds > 8 ? `Interior (${h.beds} beds • cap at 8)` : (bedsEff<=inc ? `Interior (≤${inc} beds)` : `Interior (${h.beds} beds)`)) : null,
           h.drone ? "Drone" : null,
           h.acc ? `Accessories (${clampInt(h.accDays,1)}d)` : null,
         ].filter(Boolean).join(" • ");
+
         const prefix = h.accoId ? `Home ${idx+1} (${h.accoId})` : `Home ${idx+1}`;
         lines.push({label: prefix, amount: homeTotal, meta});
         model.total += homeTotal;
