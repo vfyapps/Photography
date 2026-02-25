@@ -17,10 +17,9 @@
       font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
       min-height:100dvh;
       background:
-  radial-gradient(900px 600px at 20% 0%, rgba(122,252,255,.18), transparent 60%),
-  radial-gradient(900px 600px at 80% 10%, rgba(254,140,255,.14), transparent 55%),
-  #0a0b10;
-
+        radial-gradient(900px 600px at 20% 0%, rgba(122,252,255,.18), transparent 60%),
+        radial-gradient(900px 600px at 80% 10%, rgba(254,140,255,.14), transparent 55%),
+        #0a0b10;
       color:var(--text);
     }
     .wrap{max-width:1220px;margin:40px auto;padding:0 24px}
@@ -186,7 +185,7 @@
               <input id="s_km" type="number" min="0" value="0" />
             </div>
 
-            <div class="row">
+            <div class="row" id="sTravelTierRow">
               <label>Travel tier <span class="badge" id="s_tierBadge">0–50 km</span></label>
               <div class="inline" style="min-width:280px">
                 <label class="chip" style="margin:0">
@@ -201,7 +200,7 @@
               </div>
             </div>
 
-            <div class="mini muted">Travel is charged <strong>once per location</strong>.</div>
+            <div class="mini muted" id="sTravelInfo">Travel is charged <strong>once per location</strong>.</div>
 
             <div class="divider"></div>
 
@@ -255,7 +254,7 @@
               <input id="ms_km" type="number" min="0" value="0" />
             </div>
 
-            <div class="row">
+            <div class="row" id="msTravelTierRow">
               <label>Travel tier <span class="badge" id="ms_tierBadge">0–50 km</span></label>
               <div class="inline" style="min-width:280px">
                 <label class="chip" style="margin:0">
@@ -270,7 +269,7 @@
               </div>
             </div>
 
-            <div class="mini muted">
+            <div class="mini muted" id="msTravelInfo">
               Travel is charged <strong>once</strong> for this location (regardless of number of homes).
             </div>
 
@@ -362,7 +361,8 @@
 <script>
 /* =========================================================
    PRICING CONFIG (Multi-country ready)
-   - Fill in NL/DE/FR/BE later without touching logic.
+   - AT: tier travel (unchanged behavior)
+   - NL/DE/FR/BE: €0.20/km round trip travel + interior base up to 3 bedrooms
    ========================================================= */
 const PRICING_BY_COUNTRY = {
   AT: {
@@ -370,19 +370,57 @@ const PRICING_BY_COUNTRY = {
     label: "Austria",
     prices: {
       exterior: 50,
-      interior_base_up_to_2: 80,
-      extra_bedroom: 10,
+      interior: { base: 80, included_bedrooms: 2, extra_bedroom: 10 },
       drone: 55,
       accessories_per_day: 10,
-      travel: { "0_50": 32, "51_100": 64, "100_plus": 96 }
+      travel: { type: "tier", tiers: { "0_50": 32, "51_100": 64, "100_plus": 96 } }
     }
   },
 
-  // TODO: fill these when ready
-  NL: { currency:"EUR", label:"Netherlands", prices: null },
-  DE: { currency:"EUR", label:"Germany",     prices: null },
-  FR: { currency:"EUR", label:"France",      prices: null },
-  BE: { currency:"EUR", label:"Belgium",     prices: null },
+  NL: {
+    currency: "EUR",
+    label: "Netherlands",
+    prices: {
+      exterior: 80,
+      interior: { base: 85, included_bedrooms: 3, extra_bedroom: 20 },
+      drone: 55,
+      accessories_per_day: 10,
+      travel: { type: "per_km_roundtrip", rate_per_km: 0.26 }
+    }
+  },
+  DE: {
+    currency: "EUR",
+    label: "Germany",
+    prices: {
+      exterior: 80,
+      interior: { base: 85, included_bedrooms: 3, extra_bedroom: 20 },
+      drone: 55,
+      accessories_per_day: 10,
+      travel: { type: "per_km_roundtrip", rate_per_km: 0.26 }
+    }
+  },
+  FR: {
+    currency: "EUR",
+    label: "France",
+    prices: {
+      exterior: 80,
+      interior: { base: 85, included_bedrooms: 3, extra_bedroom: 20 },
+      drone: 55,
+      accessories_per_day: 10,
+      travel: { type: "per_km_roundtrip", rate_per_km: 0.26 }
+    }
+  },
+  BE: {
+    currency: "EUR",
+    label: "Belgium",
+    prices: {
+      exterior: 80,
+      interior: { base: 85, included_bedrooms: 3, extra_bedroom: 20 },
+      drone: 55,
+      accessories_per_day: 10,
+      travel: { type: "per_km_roundtrip", rate_per_km: 0.26 }
+    }
+  },
 };
 
 /* =========================================================
@@ -398,6 +436,7 @@ const safeNum = (n) => {
   const x = Number(n);
   return Number.isFinite(x) ? x : 0;
 };
+
 function travelTierFromKm(km){
   const k = safeNum(km);
   if (k <= 50) return "0_50";
@@ -414,6 +453,13 @@ function getPricing(){
   const cfg = PRICING_BY_COUNTRY[c];
   return cfg?.prices || null;
 }
+function getTravelType(prices){
+  return prices?.travel?.type || "tier";
+}
+function isTierTravel(prices){
+  return getTravelType(prices) === "tier";
+}
+
 function setPricingHints(){
   const c = el("country").value;
   const cfg = PRICING_BY_COUNTRY[c];
@@ -425,11 +471,43 @@ function setPricingHints(){
   if (!prices){
     hint.innerHTML = `<span class="warn">Prices not configured for ${cfg.label} yet.</span>`;
     summary.innerHTML = `<span class="warn">Pricing for ${cfg.label} is still TBD. Totals will show €0,00 until configured.</span>`;
-  } else {
-    hint.textContent = `${cfg.label} pricing loaded.`;
-    summary.textContent =
-      `${cfg.label}: Exterior €${prices.exterior} • Interior €${prices.interior_base_up_to_2} (up to 2 bedrooms) • Each additional bedroom +€${prices.extra_bedroom} • Drone +€${prices.drone} • Accessories +€${prices.accessories_per_day}/day • Travel charged once per location.`;
+    return;
   }
+
+  hint.textContent = `${cfg.label} pricing loaded.`;
+
+  const inc = prices.interior?.included_bedrooms ?? 2;
+  const base = prices.interior?.base ?? 0;
+  const extra = prices.interior?.extra_bedroom ?? 0;
+
+  let s =
+    `${cfg.label}: Exterior €${prices.exterior} • Interior €${base} (up to ${inc} bedrooms) • Each additional bedroom +€${extra} • Drone +€${prices.drone} • Accessories +€${prices.accessories_per_day}/day • Travel charged once per location.`;
+
+  if (getTravelType(prices) === "per_km_roundtrip"){
+    s += ` Travel: €${prices.travel.rate_per_km}/km (round trip).`;
+  }
+
+  summary.textContent = s;
+}
+
+/* =========================================================
+   Travel UI toggles per country
+   ========================================================= */
+function updateTravelUI(){
+  const prices = getPricing();
+  const tierUi = isTierTravel(prices);
+
+  // Single
+  el("sTravelTierRow").style.display = tierUi ? "grid" : "none";
+  el("sTravelInfo").innerHTML = tierUi
+    ? `Travel is charged <strong>once per location</strong>.`
+    : `Travel is charged <strong>once per location</strong> • €${prices?.travel?.rate_per_km ?? 0}/km <strong>(round trip)</strong>.`;
+
+  // Multi-same
+  el("msTravelTierRow").style.display = tierUi ? "grid" : "none";
+  el("msTravelInfo").innerHTML = tierUi
+    ? `Travel is charged <strong>once</strong> for this location (regardless of number of homes).`
+    : `Travel is charged <strong>once</strong> for this location (regardless of number of homes) • €${prices?.travel?.rate_per_km ?? 0}/km <strong>(round trip)</strong>.`;
 }
 
 /* =========================================================
@@ -454,9 +532,12 @@ modeBtns.forEach(b => b.addEventListener("click", () => {
 }));
 
 /* =========================================================
-   Travel tier sync helper
+   Travel tier sync helper (for tier-based travel only)
    ========================================================= */
 function syncTravelTier(panelPrefix){
+  const prices = getPricing();
+  if (!isTierTravel(prices)) return null;
+
   const kmEl = el(panelPrefix + "_km");
   const overrideEl = el(panelPrefix + "_tierOverride");
   const selectEl = el(panelPrefix + "_tierSelect");
@@ -481,8 +562,13 @@ function calcInterior(prices, bedrooms){
   if (!prices) return 0;
   const beds = Math.max(0, safeNum(bedrooms));
   if (beds <= 0) return 0;
-  if (beds <= 2) return prices.interior_base_up_to_2;
-  return prices.interior_base_up_to_2 + (beds - 2) * prices.extra_bedroom;
+
+  const inc = prices.interior?.included_bedrooms ?? 2;
+  const base = prices.interior?.base ?? 0;
+  const extra = prices.interior?.extra_bedroom ?? 0;
+
+  if (beds <= inc) return base;
+  return base + (beds - inc) * extra;
 }
 function calcHomeTotal(prices, {ext,int,beds,drone,acc,accDays}){
   if (!prices) return 0;
@@ -495,14 +581,48 @@ function calcHomeTotal(prices, {ext,int,beds,drone,acc,accDays}){
 }
 
 /* =========================================================
+   Travel cost (tier vs per-km round trip)
+   ========================================================= */
+function calcTravelCost(prices, { kmOneWay, tier }){
+  if (!prices) return 0;
+  const t = prices.travel;
+
+  if (t?.type === "tier"){
+    const key = tier || travelTierFromKm(kmOneWay);
+    return t.tiers?.[key] || 0;
+  }
+
+  if (t?.type === "per_km_roundtrip"){
+    const km = safeNum(kmOneWay);
+    return km * 2 * (t.rate_per_km || 0);
+  }
+
+  return 0;
+}
+function travelLabel(prices, { kmOneWay, tier }){
+  if (!prices) return "Travel";
+  if (prices.travel?.type === "per_km_roundtrip"){
+    return `Travel (round trip • €${prices.travel.rate_per_km}/km • one-way ${kmOneWay} km)`;
+  }
+  const key = tier || travelTierFromKm(kmOneWay);
+  return `Travel (${travelTierLabel(key)} • one-way ${kmOneWay} km)`;
+}
+
+/* =========================================================
    Single wiring
    ========================================================= */
 function syncSingleUI(){
   el("sBedsRow").style.display = el("sInt").checked ? "grid" : "none";
   el("sAccDaysRow").style.display = el("sAcc").checked ? "grid" : "none";
 }
-["sExt","sInt","sDrone","sAcc","sBeds","sAccDays","s_locationName","s_km","s_tierOverride","s_tierSelect","s_accoId","s_notes"]
-  .forEach(id => el(id).addEventListener("input", () => { syncSingleUI(); syncTravelTier("s"); recalc(); }));
+[
+  "sExt","sInt","sDrone","sAcc","sBeds","sAccDays",
+  "s_locationName","s_km","s_tierOverride","s_tierSelect","s_accoId","s_notes"
+].forEach(id => el(id).addEventListener("input", () => {
+  syncSingleUI();
+  syncTravelTier("s");
+  recalc();
+}));
 
 /* =========================================================
    Multi same wiring
@@ -517,7 +637,7 @@ function buildMultiSameHomes(presetHomes){
 
   for (let i=1; i<=count; i++){
     const wrap = document.createElement("div");
-    wrap.className = "locCard homeCard"; // homeCard (distinct)
+    wrap.className = "locCard homeCard";
     wrap.innerHTML = `
       <div class="locHeader">
         <div class="locTitle">Home ${i}</div>
@@ -549,7 +669,6 @@ function buildMultiSameHomes(presetHomes){
     container.appendChild(wrap);
   }
 
-  // apply preset homes
   if (presetHomes){
     presetHomes.forEach((h, idx) => {
       const i = String(idx+1);
@@ -595,18 +714,19 @@ el("ms_buildHomesBtn").addEventListener("click", () => buildMultiSameHomes());
 
 /* =========================================================
    Multi locations builder (FIXED)
-   - Locations are "locationCard"
-   - Homes are "homeCard"
-   - snapshot only selects ":scope > .locationCard"
    ========================================================= */
 function buildMultiLocations(state){
   const locCount = state?.locCount ?? clampInt(el("ml_locCount").value, 1);
   const container = el("ml_locations");
   container.innerHTML = "";
 
+  const prices = getPricing();
+  const tierUi = isTierTravel(prices);
+  const travelRowStyle = tierUi ? "" : "display:none";
+
   for (let l=1; l<=locCount; l++){
     const loc = document.createElement("div");
-    loc.className = "locCard locationCard"; // IMPORTANT: locationCard distinct
+    loc.className = "locCard locationCard";
 
     loc.innerHTML = `
       <div class="locHeader">
@@ -626,7 +746,7 @@ function buildMultiLocations(state){
         <input type="number" min="0" value="0" data-loc="${l}" data-k="km" style="max-width:160px" />
       </div>
 
-      <div class="row">
+      <div class="row" style="${travelRowStyle}">
         <label>Travel tier <span class="badge" id="ml_badge_${l}">0–50 km</span></label>
         <div class="inline" style="min-width:280px">
           <label class="chip" style="margin:0">
@@ -703,6 +823,9 @@ function buildMultiLocations(state){
 }
 
 function syncMultiLocTier(locId){
+  const prices = getPricing();
+  if (!isTierTravel(prices)) return null;
+
   const container = el("ml_locations");
   const km = safeNum(container.querySelector(`input[data-loc="${locId}"][data-k="km"]`)?.value || 0);
   const override = !!container.querySelector(`input[data-loc="${locId}"][data-k="override"]`)?.checked;
@@ -726,7 +849,7 @@ function buildMultiLocHomes(locId, presetHomes){
 
   for (let i=1; i<=count; i++){
     const home = document.createElement("div");
-    home.className = "locCard homeCard"; // IMPORTANT: homeCard distinct
+    home.className = "locCard homeCard";
 
     home.innerHTML = `
       <div class="locHeader">
@@ -759,7 +882,6 @@ function buildMultiLocHomes(locId, presetHomes){
     homesWrap.appendChild(home);
   }
 
-  // restore preset homes if provided
   if (presetHomes){
     presetHomes.forEach((h, idx) => {
       const i = String(idx+1);
@@ -807,8 +929,6 @@ function syncMultiLocHomeVisibility(locId){
 
 function snapshotMultiLocations(){
   const container = el("ml_locations");
-
-  // ✅ FIX: only direct location cards, not home cards
   const locCards = container.querySelectorAll(":scope > .locationCard");
 
   const locations = [];
@@ -820,12 +940,16 @@ function snapshotMultiLocations(){
     const get = (k) => container.querySelector(`[data-loc="${locId}"][data-k="${k}"]`);
     const locName = get("locName")?.value || "";
     const km = safeNum(get("km")?.value || 0);
-    const override = !!get("override")?.checked;
-    const tier = get("tier")?.value || travelTierFromKm(km);
+
+    const prices = getPricing();
+    const tierUi = isTierTravel(prices);
+
+    const override = tierUi ? !!get("override")?.checked : false;
+    const tier = tierUi ? (get("tier")?.value || travelTierFromKm(km)) : null;
+
     const homeCount = clampInt(get("homeCount")?.value || 1, 1);
     const notes = get("notes")?.value || "";
 
-    // homes
     const homesWrap = el(`ml_homes_${locId}`);
     const homes = [];
     if (homesWrap && homesWrap.querySelector('input[data-home]')){
@@ -958,17 +1082,12 @@ function recalc(){
   const ctry = el("country").value;
   const cfg = PRICING_BY_COUNTRY[ctry];
 
-  function travelCost(tier){
-    if (!prices) return 0;
-    return prices.travel?.[tier] || 0;
-  }
-
   if (mode === "single"){
-    const tier = syncTravelTier("s");
     const km = safeNum(el("s_km").value);
-    const tCost = travelCost(tier);
+    const tier = syncTravelTier("s"); // null for per-km travel
+    const tCost = calcTravelCost(prices, { kmOneWay: km, tier });
 
-    rows.push({label:`Travel (${travelTierLabel(tier)} • one-way ${km} km)`, amount: tCost, meta:"Charged once per location"});
+    rows.push({label: travelLabel(prices, { kmOneWay: km, tier }), amount: tCost, meta:"Charged once per location"});
     total += tCost;
 
     const ext = el("sExt").checked;
@@ -978,12 +1097,20 @@ function recalc(){
     const acco = (el("s_accoId").value || "").trim();
     const homeLabel = acco ? `Home (${acco})` : `Home`;
 
+    const inc = prices?.interior?.included_bedrooms ?? 2;
+    const extra = prices?.interior?.extra_bedroom ?? 0;
+
     if (ext){ rows.push({label:`${homeLabel} • Exterior`, amount: prices ? prices.exterior : 0}); total += prices ? prices.exterior : 0; }
     if (intr){
       const beds = safeNum(el("sBeds").value);
       if (beds <= 0) messages.push("Interior selected but bedrooms is 0");
       const c = calcInterior(prices, beds);
-      const meta = (beds<=2) ? `Up to 2 bedrooms` : `${beds} bedrooms (includes +€${(beds-2)*(prices?prices.extra_bedroom:0)})`;
+
+      let meta = `Up to ${inc} bedrooms`;
+      if (beds > inc){
+        meta = `${beds} bedrooms (includes +€${(beds - inc) * extra})`;
+      }
+
       rows.push({label:`${homeLabel} • Interior`, amount: c, meta});
       total += c;
     }
@@ -1000,16 +1127,18 @@ function recalc(){
   }
 
   if (mode === "multi_same"){
-    const tier = syncTravelTier("ms");
     const km = safeNum(el("ms_km").value);
-    const tCost = travelCost(tier);
+    const tier = syncTravelTier("ms");
+    const tCost = calcTravelCost(prices, { kmOneWay: km, tier });
 
-    rows.push({label:`Travel (${travelTierLabel(tier)} • one-way ${km} km)`, amount: tCost, meta:"Charged once per location"});
+    rows.push({label: travelLabel(prices, { kmOneWay: km, tier }), amount: tCost, meta:"Charged once per location"});
     total += tCost;
 
     const container = el("ms_homesList");
     const homeSet = new Set();
     container.querySelectorAll('input[data-home]').forEach(inp => homeSet.add(inp.dataset.home));
+
+    const inc = prices?.interior?.included_bedrooms ?? 2;
 
     if (!homeSet.size){
       messages.push("Build the homes list");
@@ -1036,7 +1165,7 @@ function recalc(){
         const homeTotal = calcHomeTotal(prices, {ext,int:intr,beds,drone,acc,accDays});
         const parts = [];
         if (ext) parts.push("Exterior");
-        if (intr) parts.push(beds<=2 ? "Interior (≤2 beds)" : `Interior (${beds} beds)`);
+        if (intr) parts.push(beds<=inc ? `Interior (≤${inc} beds)` : `Interior (${beds} beds)`);
         if (drone) parts.push("Drone");
         if (acc) parts.push(`Accessories (${clampInt(accDays,1)}d)`);
 
@@ -1051,6 +1180,7 @@ function recalc(){
 
   if (mode === "multi_locations"){
     const state = snapshotMultiLocations();
+    const inc = prices?.interior?.included_bedrooms ?? 2;
 
     if (!state.locations.length){
       messages.push("Build the locations");
@@ -1058,9 +1188,13 @@ function recalc(){
     } else {
       state.locations.forEach((loc, i) => {
         const tier = loc.override ? loc.tier : travelTierFromKm(loc.km);
-        const tCost = travelCost(tier);
+        const tCost = calcTravelCost(prices, { kmOneWay: loc.km, tier });
 
-        rows.push({label:`Location ${i+1}${loc.locName ? " • "+loc.locName : ""} • Travel (${travelTierLabel(tier)} • one-way ${loc.km} km)`, amount: tCost, meta:"Charged once for this location"});
+        rows.push({
+          label: `Location ${i+1}${loc.locName ? " • "+loc.locName : ""} • ${travelLabel(prices, { kmOneWay: loc.km, tier })}`,
+          amount: tCost,
+          meta: "Charged once for this location"
+        });
         total += tCost;
 
         if (!loc.homes || !loc.homes.length){
@@ -1071,7 +1205,7 @@ function recalc(){
             const homeTotal = calcHomeTotal(prices, h);
             const parts = [];
             if (h.ext) parts.push("Exterior");
-            if (h.int) parts.push(h.beds<=2 ? "Interior (≤2 beds)" : `Interior (${h.beds} beds)`);
+            if (h.int) parts.push(h.beds<=inc ? `Interior (≤${inc} beds)` : `Interior (${h.beds} beds)`);
             if (h.drone) parts.push("Drone");
             if (h.acc) parts.push(`Accessories (${clampInt(h.accDays,1)}d)`);
             const prefix = h.accoId ? `↳ Home ${idx+1} (${h.accoId})` : `↳ Home ${idx+1}`;
@@ -1121,17 +1255,18 @@ function buildQuoteModel(){
   };
   const push = (title, lines) => model.sections.push({title, lines});
 
-  const tCost = (tier) => prices ? (prices.travel?.[tier] || 0) : 0;
+  const inc = prices?.interior?.included_bedrooms ?? 2;
+  const extra = prices?.interior?.extra_bedroom ?? 0;
 
   if (mode === "single"){
     const loc = (el("s_locationName").value || "").trim();
     const acco = (el("s_accoId").value || "").trim();
     const km = safeNum(el("s_km").value);
     const tier = syncTravelTier("s");
-    const travel = tCost(tier);
+    const travel = calcTravelCost(prices, { kmOneWay: km, tier });
 
     const lines = [];
-    lines.push({label:`Travel (${travelTierLabel(tier)} • one-way ${km} km)`, amount: travel, meta:"Charged once per location"});
+    lines.push({label: travelLabel(prices, { kmOneWay: km, tier }), amount: travel, meta:"Charged once per location"});
     model.total += travel;
 
     const homePrefix = acco ? `Home (${acco})` : "Home";
@@ -1139,7 +1274,12 @@ function buildQuoteModel(){
     if (el("sInt").checked){
       const beds = safeNum(el("sBeds").value);
       const c = calcInterior(prices, beds);
-      const meta = (!prices) ? "TBD" : (beds<=2 ? "Up to 2 bedrooms" : `${beds} bedrooms (+€${(beds-2)*prices.extra_bedroom})`);
+
+      let meta = (!prices) ? "TBD" : `Up to ${inc} bedrooms`;
+      if (prices && beds > inc){
+        meta = `${beds} bedrooms (+€${(beds-inc)*extra})`;
+      }
+
       lines.push({label:`${homePrefix} • Interior`, amount: c, meta}); model.total += c;
     }
     if (el("sDrone").checked){ lines.push({label:`${homePrefix} • Drone`, amount: prices ? prices.drone : 0}); model.total += prices ? prices.drone : 0; }
@@ -1158,10 +1298,10 @@ function buildQuoteModel(){
     const loc = (el("ms_locationName").value || "").trim();
     const km = safeNum(el("ms_km").value);
     const tier = syncTravelTier("ms");
-    const travel = tCost(tier);
+    const travel = calcTravelCost(prices, { kmOneWay: km, tier });
 
     const lines = [];
-    lines.push({label:`Travel (${travelTierLabel(tier)} • one-way ${km} km)`, amount: travel, meta:"Charged once per location"});
+    lines.push({label: travelLabel(prices, { kmOneWay: km, tier }), amount: travel, meta:"Charged once per location"});
     model.total += travel;
 
     const container = el("ms_homesList");
@@ -1184,7 +1324,7 @@ function buildQuoteModel(){
       const homeTotal = calcHomeTotal(prices, {ext,int:intr,beds,drone,acc,accDays});
       const meta = [
         ext ? "Exterior" : null,
-        intr ? (beds<=2 ? "Interior (≤2 beds)" : `Interior (${beds} beds)`) : null,
+        intr ? (beds<=inc ? `Interior (≤${inc} beds)` : `Interior (${beds} beds)`) : null,
         drone ? "Drone" : null,
         acc ? `Accessories (${clampInt(accDays,1)}d)` : null,
       ].filter(Boolean).join(" • ");
@@ -1202,17 +1342,17 @@ function buildQuoteModel(){
     const state = snapshotMultiLocations();
     state.locations.forEach((loc, i) => {
       const tier = loc.override ? loc.tier : travelTierFromKm(loc.km);
-      const travel = tCost(tier);
+      const travel = calcTravelCost(prices, { kmOneWay: loc.km, tier });
 
       const lines = [];
-      lines.push({label:`Travel (${travelTierLabel(tier)} • one-way ${loc.km} km)`, amount: travel, meta:"Charged once for this location"});
+      lines.push({label: travelLabel(prices, { kmOneWay: loc.km, tier }), amount: travel, meta:"Charged once for this location"});
       model.total += travel;
 
       (loc.homes || []).forEach((h, idx) => {
         const homeTotal = calcHomeTotal(prices, h);
         const meta = [
           h.ext ? "Exterior" : null,
-          h.int ? (h.beds<=2 ? "Interior (≤2 beds)" : `Interior (${h.beds} beds)`) : null,
+          h.int ? (h.beds<=inc ? `Interior (≤${inc} beds)` : `Interior (${h.beds} beds)`) : null,
           h.drone ? "Drone" : null,
           h.acc ? `Accessories (${clampInt(h.accDays,1)}d)` : null,
         ].filter(Boolean).join(" • ");
@@ -1342,7 +1482,7 @@ function base64UrlDecode(str){
 
 function getState(){
   const state = {
-    v: 1,
+    v: 2,
     country: el("country").value,
     mode,
     single: {
@@ -1373,7 +1513,6 @@ function getState(){
     }
   };
 
-  // ms homes
   const msContainer = el("ms_homesList");
   if (msContainer.querySelector('input[data-home]')){
     const homeIds = new Set();
@@ -1392,7 +1531,6 @@ function getState(){
     });
   }
 
-  // ml locations via snapshot
   const snap = snapshotMultiLocations();
   state.multiLoc.locCount = snap.locCount || state.multiLoc.locCount;
   state.multiLoc.locations = snap.locations || [];
@@ -1403,11 +1541,10 @@ function getState(){
 function applyState(state){
   if (!state || typeof state !== "object") return;
 
-  // country
   if (state.country && PRICING_BY_COUNTRY[state.country]) el("country").value = state.country;
   setPricingHints();
+  updateTravelUI();
 
-  // mode
   if (state.mode) mode = state.mode;
   modeBtns.forEach(x => x.classList.remove("active"));
   const activeBtn = document.querySelector(`#modeBar .pill[data-mode="${mode}"]`);
@@ -1416,7 +1553,6 @@ function applyState(state){
   el("multiSamePanel").style.display  = (mode==="multi_same") ? "block" : "none";
   el("multiLocPanel").style.display   = (mode==="multi_locations") ? "block" : "none";
 
-  // single
   if (state.single){
     el("s_locationName").value = state.single.locationName ?? "";
     el("s_km").value = state.single.km ?? 0;
@@ -1434,7 +1570,6 @@ function applyState(state){
     syncTravelTier("s");
   }
 
-  // multi same
   if (state.multiSame){
     el("ms_locationName").value = state.multiSame.locationName ?? "";
     el("ms_km").value = state.multiSame.km ?? 0;
@@ -1451,7 +1586,6 @@ function applyState(state){
     }
   }
 
-  // multi locations
   if (state.multiLoc){
     el("ml_locCount").value = state.multiLoc.locCount ?? 1;
     if (Array.isArray(state.multiLoc.locations) && state.multiLoc.locations.length){
@@ -1475,7 +1609,6 @@ async function saveLink(){
     el("saveLinkBtn").textContent = "Link copied ✓";
     setTimeout(()=> el("saveLinkBtn").textContent = "Save link", 1200);
   }catch(e){
-    // fallback
     prompt("Copy this link:", url.toString());
   }
 }
@@ -1510,6 +1643,7 @@ function resetAll(){
 
   el("country").value = "AT";
   setPricingHints();
+  updateTravelUI();
 
   el("singlePanel").style.display = "block";
   el("multiSamePanel").style.display = "none";
@@ -1551,6 +1685,14 @@ el("resetBtn").addEventListener("click", resetAll);
    ========================================================= */
 el("country").addEventListener("input", () => {
   setPricingHints();
+  updateTravelUI();
+
+  // If multi-locations is open, rebuild to hide/show tier rows correctly
+  if (mode === "multi_locations" && el("ml_locations").innerHTML.trim()){
+    const snap = snapshotMultiLocations();
+    buildMultiLocations(snap);
+  }
+
   recalc();
 });
 
@@ -1561,11 +1703,11 @@ setPricingHints();
 syncSingleUI();
 syncTravelTier("s");
 syncTravelTier("ms");
+updateTravelUI();
 
 // Try load from URL; otherwise default init
 loadStateFromUrl();
 recalc();
-
 </script>
 </body>
 </html>
