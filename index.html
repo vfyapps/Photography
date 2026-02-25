@@ -560,17 +560,17 @@ function syncTravelTier(panelPrefix){
    ========================================================= */
 function calcInterior(prices, bedrooms){
   if (!prices) return 0;
+  const beds = Math.max(0, safeNum(bedrooms));
+  if (beds <= 0) return 0;
 
-  const bedsRaw = Math.max(0, safeNum(bedrooms));
-  if (bedsRaw <= 0) return 0;
+  const inc = prices.interior?.included_bedrooms ?? 2;
+  const base = prices.interior?.base ?? 0;
+  const extra = prices.interior?.extra_bedroom ?? 0;
 
-  // ✅ AT has no cap; other countries cap at 8 bedrooms
-  const country = el("country").value;
-  const beds = (country === "AT") ? bedsRaw : Math.min(bedsRaw, 8);
-
-  if (beds <= 2) return prices.interior_base_up_to_2;
-  return prices.interior_base_up_to_2 + (beds - 2) * prices.extra_bedroom;
+  if (beds <= inc) return base;
+  return base + (beds - inc) * extra;
 }
+
 function calcHomeTotal(prices, {ext,int,beds,drone,acc,accDays}){
   if (!prices) return 0;
   let t = 0;
