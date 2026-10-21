@@ -1,1763 +1,1414 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Villa for You – Photography Pricing Calculator</title>
-  <style>
-    :root{
-      --bg:#0a0b10;--card:#10131c;--text:#f2f5fb;--muted:#8a93a6;
-      --border:#1a1d2a;--radius:22px;--shadow:0 8px 24px rgba(0,0,0,.35);
-      --accent:linear-gradient(90deg,#7afcff,#fe8cff);
-      --chip:#151a26; --warn:#fbbf24;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
-      min-height:100dvh;
-      background:
-        radial-gradient(900px 600px at 20% 0%, rgba(122,252,255,.18), transparent 60%),
-        radial-gradient(900px 600px at 80% 10%, rgba(254,140,255,.14), transparent 55%),
-        #0a0b10;
-      color:var(--text);
-    }
-    .wrap{max-width:1220px;margin:40px auto;padding:0 24px}
-    h1{font-size:30px;margin:0 0 6px;font-weight:950;letter-spacing:-.02em}
-    .sub{color:var(--muted);margin-bottom:18px;font-size:15px}
-    .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
-    @media(max-width:980px){.grid{grid-template-columns:1fr}}
-    .card{
-      background:linear-gradient(180deg,#111522,#0b0e16);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .hd{padding:18px 18px 0}
-    .bd{padding:18px}
-    h2{font-size:18px;margin:0 0 10px}
-    .muted{color:var(--muted)}
-    .mini{font-size:12px;color:#aab3c5;margin-top:6px}
-    .row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;margin:10px 0}
-    label{font-size:14px;color:var(--text)}
-    input,select{
-      background:#0e1221;border:1px solid #1d2437;color:var(--text);
-      border-radius:12px;padding:9px 10px;outline:none;
-    }
-    input[type="number"]{max-width:160px}
-    input[type="text"]{min-width:220px}
-    .chips{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
-    .chip{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:8px 12px;border:1px solid #252a3a;border-radius:999px;
-      background:var(--chip);font-size:13px;cursor:pointer;user-select:none;
-      transition:.15s;
-    }
-    .chip:hover{transform:translateY(-1px)}
-    .chip input{transform:scale(1.1)}
-    .pill{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:9px 14px;border-radius:999px;border:1px solid #23273a;background:#151a26;
-      color:#d0d5e4;font-weight:950;cursor:pointer;transition:.15s;
-    }
-    .pill.active{background:var(--accent);color:#0a0b10;border-color:transparent}
-    .pillbar{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 6px}
-    .badge{
-      display:inline-block;margin-left:8px;font-size:11px;border:1px solid #28304a;border-radius:999px;
-      padding:4px 8px;color:#9db1ff
-    }
-    .divider{height:1px;background:#1a2033;margin:14px 0}
-    table{width:100%;border-collapse:collapse;margin-top:10px}
-    th,td{padding:10px 12px;border-bottom:1px dashed #1d2336;font-size:14px;vertical-align:top}
-    th{text-align:left;color:#aab3c5;font-weight:950}
-    .right{text-align:right}
-    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-    button{
-      background:#141a27;border:1px solid #27304a;color:#e7ecff;
-      padding:10px 12px;border-radius:14px;cursor:pointer;font-weight:950;
-      transition:.15s;
-    }
-    button:hover{transform:translateY(-1px);border-color:#3a4770}
-    button.primary{background:var(--accent);color:#0a0b10;border-color:transparent}
-    button.ghost{background:transparent}
-    .hint{font-size:12px;color:var(--muted);line-height:1.45;margin-top:10px}
-    .warn{color:var(--warn)}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photography price calculator – Villa for You</title>
+<meta name="description" content="Work out the cost of a Villa for You photo shoot per home and location, based on the 2026 photographer rates.">
+<script>
+  // Apply the theme before first paint so there is no light/dark flash.
+  (function () {
+    var stored = null;
+    try { stored = localStorage.getItem("vfy-theme"); } catch (e) {}
+    var dark = stored ? stored === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (dark) document.documentElement.classList.add("dark");
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans:wght@400;500;600;700&family=Sen:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   VfY 2.0 design tokens (copied from the vfy-app-design starter)
+   ========================================================= */
+:root, #print {
+  color-scheme: light;
 
-    .vfy-header {position: fixed;top: 22px;right: 30px;z-index: 999;}
-    .vfy-logo {width: 130px;height: auto;opacity: 0.9;filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));transition: opacity 0.2s ease;}
-    .vfy-logo:hover {opacity: 1;}
+  --font-display: "Sen", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
-    .totalWrap{display:flex;justify-content:center;margin-top:14px}
-    .totalCard{
-      width:min(520px, 100%);
-      border:1px solid var(--border);
-      background:#0d111b;border-radius:18px;padding:16px;
-      text-align:center;
-    }
-    .totalCard h3{margin:0 0 6px;font-size:13px;color:#cbd5e1;font-weight:950}
-    .big{
-      font-size:34px;font-weight:980;
-      background:var(--accent);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-      letter-spacing:-.02em;
-    }
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-full: 9999px;
 
-    .locCard{
-      border:1px solid var(--border);
-      background:#0d111b;border-radius:18px;padding:14px;
-      margin:10px 0;
-      box-shadow:none;
-    }
-    .locHeader{
-      display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
-    }
-    .locTitle{font-weight:980}
-    .inline{display:flex;gap:10px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
 
-    .presetBar{
-      display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 0;
-    }
-    .preset{
-      padding:8px 12px;border-radius:999px;border:1px solid #26304a;
-      background:#0d111b;color:#dbe3ff;font-weight:950;font-size:12px;
-      cursor:pointer;transition:.15s;
-    }
-    .preset:hover{transform:translateY(-1px);border-color:#3a4770}
+  --success: #3f8f5f;
+  --warning: #a9711c;
+  --info: #3b6fa6;
 
-    .topBar{
-      display:flex;gap:12px;align-items:center;flex-wrap:wrap;
-      margin:0 0 10px;
-    }
-    .topBar select{min-width:180px}
-  </style>
+  --vfy-teal: #3cc3af;
+  --vfy-teal-hover: #63cfbf;
+  --vfy-teal-ink: #0e6b60;
+  --vfy-coral: #e01a4f;
+  --vfy-coral-hover: #e64872;
+
+  --vfy-sand: #ffffff;
+  --vfy-sand-deep: #f6f7f8;
+  --vfy-ink: #1d1d1b;
+  --vfy-ink-soft: #5b6167;
+  --vfy-teal-tint: #edf5f4;
+  --vfy-coral-tint: #fbe9ee;
+  --vfy-success-tint: #e9f4ee;
+  --vfy-warning-tint: #f9f0e2;
+  --vfy-info-tint: #eaf1f8;
+  --vfy-border: #dde1e3;
+
+  --background: var(--vfy-sand);
+  --foreground: var(--vfy-ink);
+  --card: #ffffff;
+  --card-foreground: var(--vfy-ink);
+  --primary: var(--vfy-teal-ink);
+  --primary-foreground: #ffffff;
+  --secondary: var(--vfy-sand-deep);
+  --secondary-foreground: var(--vfy-ink);
+  --muted: var(--vfy-sand-deep);
+  --muted-foreground: var(--vfy-ink-soft);
+  --accent: var(--vfy-teal-tint);
+  --accent-foreground: var(--vfy-teal-ink);
+  --destructive: var(--vfy-coral);
+  --destructive-foreground: #ffffff;
+  --border: var(--vfy-border);
+  --input: var(--vfy-border);
+  --ring: var(--vfy-teal);
+
+  --shadow-sm: 0 1px 2px rgba(29, 29, 27, 0.06), 0 1px 1px rgba(29, 29, 27, 0.04);
+  --shadow-md: 0 4px 10px rgba(29, 29, 27, 0.08), 0 2px 4px rgba(29, 29, 27, 0.05);
+  --shadow-lg: 0 16px 32px rgba(29, 29, 27, 0.16), 0 6px 12px rgba(29, 29, 27, 0.09);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --vfy-sand: #16181a;
+  --vfy-sand-deep: #1d2023;
+  --vfy-ink: #f3efe9;
+  --vfy-ink-soft: #9aa1a7;
+  --vfy-teal-tint: rgba(60, 195, 175, 0.14);
+  --vfy-coral-tint: rgba(224, 26, 79, 0.16);
+  --vfy-success-tint: rgba(63, 143, 95, 0.16);
+  --vfy-warning-tint: rgba(169, 113, 28, 0.18);
+  --vfy-info-tint: rgba(59, 111, 166, 0.18);
+  --vfy-border: rgba(255, 255, 255, 0.1);
+
+  --background: var(--vfy-sand);
+  --foreground: var(--vfy-ink);
+  --card: #1c1f22;
+  --card-foreground: var(--vfy-ink);
+  --primary: var(--vfy-teal-hover);
+  --primary-foreground: #0e2420;
+  --secondary: var(--vfy-sand-deep);
+  --secondary-foreground: var(--vfy-ink);
+  --muted: var(--vfy-sand-deep);
+  --muted-foreground: var(--vfy-ink-soft);
+  --accent: var(--vfy-teal-tint);
+  --accent-foreground: var(--vfy-teal-hover);
+  --destructive: #ef5b81;
+  --destructive-foreground: #2b0a13;
+  --border: var(--vfy-border);
+  --input: var(--vfy-border);
+  --ring: var(--vfy-teal-hover);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* =========================================================
+   Base
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-tap-highlight-color: transparent;
+}
+h1, h2, h3, h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+p { margin: 0; }
+code { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; touch-action: manipulation; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+svg { display: block; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.num { font-variant-numeric: tabular-nums; }
+
+.shell { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+@media (min-width: 640px) { .shell { padding: 0 24px; } }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+}
+.hint { font-size: 12px; color: var(--muted-foreground); }
+
+/* =========================================================
+   Buttons
+   background-color is deliberately not transitioned (theme-switchable
+   custom property; see starter README).
+   ========================================================= */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 36px; padding: 0 16px;
+  border: 1px solid transparent; border-radius: var(--radius-md);
+  font-family: var(--font-body); font-size: 14px; font-weight: 600; white-space: nowrap;
+  transition: transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
+}
+.btn:active { transform: scale(0.98); }
+.btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+.btn-primary { background: var(--primary); color: var(--primary-foreground); }
+.btn-primary:hover { background: var(--vfy-teal); }
+.btn-secondary { background: var(--secondary); color: var(--secondary-foreground); border-color: var(--border); }
+.btn-secondary:hover { box-shadow: var(--shadow-sm); }
+.btn-ghost { background: transparent; color: var(--foreground); }
+.btn-ghost:hover { background: var(--secondary); }
+.btn-sm { height: 32px; padding: 0 12px; font-size: 13px; border-radius: var(--radius-sm); }
+.btn-lg { height: 44px; padding: 0 20px; font-size: 15px; }
+.btn-icon { width: 36px; height: 36px; padding: 0; border-radius: var(--radius-full); }
+.btn-icon.btn-sm { width: 32px; height: 32px; }
+.btn-ghost.danger:hover { color: var(--destructive); }
+
+/* =========================================================
+   Inputs
+   ========================================================= */
+.input {
+  width: 100%; height: 36px; padding: 0 12px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--card); color: var(--foreground);
+  font-size: 14px;
+}
+.input::placeholder { color: var(--muted-foreground); }
+.input:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+.input.mono { font-family: var(--font-mono); font-size: 13px; }
+textarea.input { height: auto; min-height: 72px; padding: 8px 12px; resize: vertical; line-height: 1.5; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field > label, .field-label { font-size: 13px; font-weight: 600; }
+.affix { position: relative; }
+.affix .input { padding-right: 40px; }
+.affix-suffix {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  font-family: var(--font-mono); font-size: 12px; color: var(--muted-foreground); pointer-events: none;
+}
+
+/* Segmented control (radio group) */
+.seg {
+  display: flex; flex-wrap: wrap; gap: 4px; padding: 4px;
+  background: var(--secondary); border: 1px solid var(--border); border-radius: var(--radius-md);
+}
+.seg label {
+  position: relative; flex: 1 1 0; min-width: max-content;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 36px; padding: 5px 11px;
+  border: 1px solid transparent; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600; line-height: 1.3; text-align: center;
+  color: var(--muted-foreground); cursor: pointer;
+  transition: box-shadow var(--duration-fast) var(--ease-standard);
+}
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label:hover { color: var(--foreground); }
+.seg label:has(input:checked) { background: var(--card); color: var(--foreground); border-color: var(--primary); box-shadow: var(--shadow-sm); }
+.seg label:has(input:focus-visible) { outline: 2px solid var(--ring); outline-offset: 1px; }
+.seg-sub { font-family: var(--font-mono); font-size: 11px; font-weight: 400; color: var(--muted-foreground); }
+
+/* Stepper */
+.stepper {
+  display: inline-flex; align-items: center;
+  border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card);
+}
+.stepper button {
+  display: grid; place-items: center; width: 32px; height: 32px;
+  border: 0; background: transparent; color: var(--foreground);
+}
+.stepper button:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+.stepper button:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+.stepper button:hover { background: var(--secondary); }
+.stepper button:focus-visible { outline: 2px solid var(--ring); outline-offset: 0; position: relative; }
+.stepper button svg { width: 14px; height: 14px; }
+.stepper input {
+  width: 40px; height: 32px; border: 0;
+  border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+  background: transparent; text-align: center; font-variant-numeric: tabular-nums; font-weight: 600;
+}
+.stepper input:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+
+/* =========================================================
+   Layout
+   ========================================================= */
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 16px; padding-bottom: 16px; }
+.brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.brand img { display: block; width: 72px; height: 50px; }
+.dark .logo-color, :root:not(.dark) .logo-white { display: none; }
+.brand-divider { width: 1px; height: 32px; background: var(--border); }
+
+.page-header { padding: 8px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 24px; display: grid; gap: 8px; }
+.page-header .eyebrow { color: var(--accent-foreground); }
+.page-header h1 { font-size: 28px; line-height: 1.15; }
+.page-header p { max-width: 62ch; color: var(--muted-foreground); }
+
+.layout { display: grid; gap: 24px; padding-bottom: 48px; }
+@media (min-width: 1024px) {
+  .layout { grid-template-columns: minmax(0, 1fr) 360px; align-items: start; }
+}
+.builder-col { display: grid; gap: 16px; min-width: 0; }
+
+.panel {
+  background: var(--card); color: var(--card-foreground);
+  border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
+}
+
+/* Country */
+.country-panel { padding: 16px 20px; display: grid; gap: 12px; }
+.panel-title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.rates-details summary {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  font-size: 13px; font-weight: 600; color: var(--accent-foreground);
+  border-radius: var(--radius-sm); list-style: none;
+}
+.rates-details summary::-webkit-details-marker { display: none; }
+.rates-details summary svg { width: 14px; height: 14px; transition: transform var(--duration-base) var(--ease-standard); }
+.rates-details[open] summary svg { transform: rotate(90deg); }
+.rates-details summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.rates {
+  margin: 10px 0 0; padding: 12px 14px;
+  display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 16px;
+  background: var(--muted); border-radius: var(--radius-md); font-size: 13px;
+}
+.rates dt { font-family: var(--font-mono); font-size: 12px; color: var(--muted-foreground); padding-top: 1px; }
+.rates dd { margin: 0; font-variant-numeric: tabular-nums; }
+
+/* Location */
+.loc-head { padding: 16px 20px; display: grid; gap: 14px; }
+.loc-title { display: flex; align-items: center; gap: 8px; min-height: 32px; }
+.loc-meta { margin-left: auto; font-size: 13px; color: var(--muted-foreground); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.loc-fields { display: grid; grid-template-columns: minmax(0, 1fr) 132px; gap: 12px; align-items: end; }
+.band { display: grid; gap: 6px; }
+.band legend { padding: 0; margin-bottom: 6px; }
+.travel-line { font-size: 13px; color: var(--muted-foreground); }
+.travel-line strong { color: var(--foreground); font-weight: 700; font-variant-numeric: tabular-nums; }
+.travel-line .attn { color: var(--foreground); }
+.travel-line .attn svg { display: inline-block; width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px; color: var(--warning); }
+
+.homes {
+  display: grid; gap: 12px; padding: 12px;
+  background: var(--muted);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+@media (min-width: 640px) { .homes { padding: 16px 20px; } }
+
+.home { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); min-width: 0; overflow: hidden; }
+.home-head {
+  display: grid; align-items: center; gap: 8px 12px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: "title total actions" "acco acco acco";
+  padding: 10px 12px 12px 16px; border-bottom: 1px solid var(--border);
+}
+@media (min-width: 640px) {
+  .home-head { grid-template-columns: auto minmax(0, 1fr) auto auto; grid-template-areas: "title acco total actions"; padding: 10px 12px 10px 16px; }
+}
+.home-title { grid-area: title; font-family: var(--font-body); font-size: 15px; font-weight: 700; letter-spacing: 0; white-space: nowrap; }
+.home-acco { grid-area: acco; max-width: 260px; }
+@media (max-width: 639px) { .home-acco { max-width: none; } }
+.home-total { grid-area: total; justify-self: end; font-weight: 700; font-size: 15px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.home-actions { grid-area: actions; display: flex; gap: 2px; }
+.home-warn {
+  display: flex; align-items: center; gap: 8px; margin: 0 12px 12px; padding: 8px 12px;
+  background: var(--vfy-warning-tint); border-radius: var(--radius-sm); font-size: 13px;
+}
+.home-warn svg { width: 16px; height: 16px; color: var(--warning); flex-shrink: 0; }
+.home-warn[hidden] { display: none; }
+
+/* Service rows */
+.svc + .svc { border-top: 1px solid var(--border); }
+.svc-main {
+  position: relative;
+  display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  min-height: 52px; padding: 8px 16px; cursor: pointer;
+}
+.svc-main:hover { background: var(--muted); }
+.svc-check { position: absolute; opacity: 0; pointer-events: none; }
+.svc-box {
+  display: grid; place-items: center; width: 20px; height: 20px;
+  border: 1.5px solid var(--muted-foreground); border-radius: var(--radius-sm); background: var(--card);
+}
+.svc-box svg { width: 14px; height: 14px; stroke-width: 3; color: var(--primary-foreground); opacity: 0; }
+.svc-main:has(.svc-check:checked) .svc-box { background: var(--primary); border-color: var(--primary); }
+.svc-main:has(.svc-check:checked) .svc-box svg { opacity: 1; }
+.svc-main:has(.svc-check:focus-visible) .svc-box { outline: 2px solid var(--ring); outline-offset: 2px; }
+.svc-text { min-width: 0; }
+.svc-name { display: block; font-weight: 600; }
+.svc-desc { display: block; font-size: 12px; color: var(--muted-foreground); }
+.svc-price { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; text-align: right; }
+.svc.off .svc-price { font-weight: 400; color: var(--muted-foreground); }
+.svc-sub {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  padding: 0 16px 12px 48px; font-size: 13px;
+}
+.svc-sub .field-label { font-weight: 600; }
+.svc-sub .hint { font-size: 12px; }
+
+.loc-foot { display: grid; gap: 12px; padding: 12px 20px 16px; }
+.loc-foot-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.loc-foot-row .spacer { flex: 1 1 auto; }
+
+.add-loc { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 4px 0; }
+
+/* Empty / error states (starter EmptyState / ErrorState) */
+.state-box {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  min-height: 208px; padding: 24px; text-align: center;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md);
+}
+.state-box > svg { width: 32px; height: 32px; color: var(--muted-foreground); }
+.state-box.is-error > svg { color: var(--destructive); }
+.state-box h3, .state-box h2 { font-family: var(--font-body); font-size: 14px; font-weight: 700; letter-spacing: 0; }
+.state-box p { max-width: 36ch; font-size: 12.5px; color: var(--muted-foreground); }
+.state-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+#linkError .state-box { margin-bottom: 24px; }
+
+/* =========================================================
+   Summary
+   ========================================================= */
+.summary { display: flex; flex-direction: column; overflow: hidden; }
+@media (min-width: 1024px) {
+  .summary { position: sticky; top: 16px; max-height: calc(100vh - 32px); }
+}
+.sum-head { padding: 20px; background: var(--accent); border-bottom: 1px solid var(--border); }
+.sum-head h2 { font-family: var(--font-mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent-foreground); }
+.sum-head h2:focus { outline: none; }
+.sum-head h2:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.sum-total {
+  margin-top: 6px;
+  font-family: var(--font-display); font-weight: 800; font-size: 40px; line-height: 1.05;
+  letter-spacing: -0.02em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
+}
+.sum-scope { margin-top: 6px; font-size: 13px; color: var(--muted-foreground); }
+.sum-body { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 4px 20px 8px; }
+.sum-empty { padding: 16px 0; font-size: 13px; color: var(--muted-foreground); }
+.warnings { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 6px; }
+.warnings li {
+  display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 8px; align-items: start;
+  padding: 8px 10px; background: var(--vfy-warning-tint); border-radius: var(--radius-sm); font-size: 12.5px;
+}
+.warnings svg { width: 16px; height: 16px; color: var(--warning); margin-top: 1px; }
+.sum-group { padding: 12px 0; border-bottom: 1px solid var(--border); }
+.sum-group:last-child { border-bottom: 0; }
+.sum-group-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+.sum-group-name { min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
+.sum-group-name .eyebrow { display: block; }
+.line { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 13px; }
+.line-l { min-width: 0; overflow-wrap: anywhere; }
+.line-l small { display: block; font-size: 12px; color: var(--muted-foreground); }
+.line-l code { font-size: 12px; }
+.line-a { flex-shrink: 0; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.line.is-sub { font-weight: 700; }
+.sum-actions { display: grid; gap: 8px; padding: 16px 20px 20px; border-top: 1px solid var(--border); }
+.sum-actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sum-actions .btn { width: 100%; }
+.fine { margin-top: 4px; font-size: 12px; color: var(--muted-foreground); }
+
+/* Mobile total bar */
+.mbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  background: var(--card); border-top: 1px solid var(--border); box-shadow: var(--shadow-lg);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+.mbar.is-hidden { transform: translateY(110%); }
+.mbar-total { font-family: var(--font-display); font-weight: 800; font-size: 22px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+@media (max-width: 1023px) { body { padding-bottom: 76px; } }
+@media (min-width: 1024px) { .mbar { display: none; } }
+
+/* Toasts */
+.toast-region {
+  position: fixed; left: 50%; bottom: 24px; z-index: 50; transform: translateX(-50%);
+  width: max-content; max-width: calc(100vw - 32px); display: grid; gap: 8px;
+}
+@media (max-width: 1023px) { .toast-region { bottom: 88px; } }
+.toast {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 8px 8px 16px; border-radius: var(--radius-md);
+  background: var(--foreground); color: var(--background); box-shadow: var(--shadow-lg);
+  font-size: 13px; font-weight: 500;
+  animation: toast-in var(--duration-base) var(--ease-standard);
+}
+.toast .btn { height: 30px; padding: 0 10px; color: var(--background); background: transparent; text-decoration: underline; text-underline-offset: 3px; }
+.toast .btn:focus-visible { outline-color: var(--vfy-teal); }
+@keyframes toast-in { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+/* =========================================================
+   Print (Print / PDF)
+   ========================================================= */
+#print { display: none; }
+@media print {
+  @page { margin: 16mm; }
+  body { padding: 0 !important; background: var(--card); }
+  .app, .mbar, .toast-region { display: none !important; }
+  #print { display: block; background: var(--card); color: var(--foreground); font-family: var(--font-body); font-size: 12px; }
+  .p-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--foreground); }
+  .p-head img { width: 86px; height: 60px; }
+  .p-head h1 { font-size: 22px; }
+  .p-meta { margin-top: 4px; color: var(--muted-foreground); }
+  .p-loc { margin-top: 18px; break-inside: avoid; }
+  .p-loc h2 { font-size: 14px; margin-bottom: 6px; }
+  .p-loc table { width: 100%; border-collapse: collapse; }
+  .p-loc td { padding: 6px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .p-loc td.a { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; padding-left: 16px; }
+  .p-loc small { display: block; color: var(--muted-foreground); }
+  .p-loc .p-sub td { font-weight: 700; border-bottom: 0; }
+  .p-note { margin-top: 6px; color: var(--muted-foreground); }
+  .p-total { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 12px; border-top: 2px solid var(--foreground); font-family: var(--font-display); font-size: 18px; font-weight: 800; }
+  .p-foot { margin-top: 18px; color: var(--muted-foreground); }
+}
+</style>
 </head>
-
 <body>
-  <header class="vfy-header">
-    <img src="https://raw.githubusercontent.com/vfyapps/Photography/main/01_VFY-logo-staand-origineel-RGB%20white2.png" alt="Villa for You logo" class="vfy-logo">
+<div class="app">
+  <header class="topbar shell">
+    <div class="brand">
+      <img class="logo-color" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATgAAADZCAYAAAC0ECz5AAAACXBIWXMAAAsTAAALEwEAmpwYAAAF92lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDggNzkuMTY0MDM2LCAyMDE5LzA4LzEzLTAxOjA2OjU3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMCAoTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjAtMDYtMDNUMjE6NDY6MDMrMDI6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjAtMDYtMDNUMjE6NDY6MDMrMDI6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIwLTA2LTAzVDIxOjQ2OjAzKzAyOjAwIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjQ1Mjc2NTIwLTY0NjgtNDliYS1iZWFhLWRkOGNlMDM0NzFlNiIgeG1wTU06RG9jdW1lbnRJRD0iYWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOjFiMzllNTBkLWVmZmYtZTA0Ni1iYjY0LThhN2U4YjFiM2VkOSIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOjA2ZWUyOTg1LTU3ZjMtNGEwOC05NWI4LWViY2FiNzIwZDJhZSIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHBob3Rvc2hvcDpJQ0NQcm9maWxlPSJzUkdCIElFQzYxOTY2LTIuMSI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNyZWF0ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6MDZlZTI5ODUtNTdmMy00YTA4LTk1YjgtZWJjYWI3MjBkMmFlIiBzdEV2dDp3aGVuPSIyMDIwLTA2LTAzVDIxOjQ2OjAzKzAyOjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjEuMCAoTWFjaW50b3NoKSIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6NDUyNzY1MjAtNjQ2OC00OWJhLWJlYWEtZGQ4Y2UwMzQ3MWU2IiBzdEV2dDp3aGVuPSIyMDIwLTA2LTAzVDIxOjQ2OjAzKzAyOjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjEuMCAoTWFjaW50b3NoKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz6JFyBkAAAkqklEQVR4nO2defwd8/X/n58kElIkKWmppfag1FaUmkrVWlo19rGl9q1qqbbq1wX9UkERlLZUfsW0tqna+dpqYi0V+1JBrdEiCYklIZ/vH2c+xCd37p1773nPlvN8POZB7p173u+5n7ln3ss5rwNGFRkEbAuMB54EZgK9yfEScC1wMLBIQf0zjFLQU3QHjLbxgbHA8hnOnQGcDpwIvNdhe2t2+LlGPAtMz3DeKGABpTZfBN5SsmUYhiMGAxfyyUitneNxYOUO2+2kvbRjdMY2Jyq2OaaTizbqwYCiO2BkYjBwHZ3/WFcFYnRHY4ZReszBVYPxwKZd2lgUuBlYuuveGEZFMAdXfvYGdlWyNRIIsb+7MY9gN3q5WRA4Wdnm14A9lG0aRikxB1du9kWmltoc48CmYZQOc3DlZmdHdkcBazuybRilwRxceRkKrOvQ/miHtg2jFJiDKy8rAgMd2l/FoW3DKAXm4MrLCMf2Rzq2bxiFYw5u3qW36A4YhmvMwZWXNx3bn+zYvmEUjjm48vI08IFD+485tG0YpcAcXHmZCUxwaP8Wh7YNoxSYgys34x3ZvRsZIRpGrTEHV24uA55zYPdXDmwaRukwB1duZgKHKNu8DLhB2aZhlBJzcOXnRuAkJVtPAfsr2TKM0mMOrhocC5zfpY1JwGbAtO67YxjVwBxcNehFRl7H01mA7t8RmaSXNTtlGGXHHFx16AV+AWwE3JfxM5ORNbxNgNcd9cswSsugojtgtM3dwFeBDYDtk/9fERgCzEbKBj4EXA/8DbfBwoZRaszBVZd7ksMwjBRsimoYRm0xB2cYRm0xB2cYRm0xB2cYRm0xB2cYRm0xB2cYRm0xB2cYRm0xB2cYRm0xB2cYRm0xB2cYRm2xVC3DyIdBwBrJsQqSP7wYUp92keScocC7wCykqtrrwCuIvPwTwIO4UXiuLVoObiCwlJKtPt6jfAoYyyjbm4XcwGnMj/wItHkDmO7ArvFpVgS2AbZGxBGGZvjMsOS/iwKjGrz/OiJ/dS0iqNCqvOTSdD9Tmw282KWNStODPGF6FY83EIWMsrAhutfXC4xr0eYvHbTZC4xp47o12x2dsc2JBV2rBiOAQ4EHuux3lmMWcDXgkz5YmarQztRuvpC6sBf6f8Ddcr2C5oTo35xLN2lvQcTJu/hhjGnjujXbHZ2xzYkFXWs3LA2ciYyMXfzNWh3/Bg5H7ps5mapge2qX300tGIwMYzX/aHGuV5DO4kgBGM1rG9+izSOV2+v0R6/Z7uiMbU4s6Fo7YSTi2LTvj06P14CD+WREN1XB5lSNL6oINHdRZwKnK9oDUa9dVdlmJxwAzKdorxcY2+T9wcBRiu0Z+gxA1JKfBQ5D9/7ohsWAc4CHAa/gvhSOdpjIH4C3lG0epGyvXQYjDk6Tq5A1yzT2Ar6g3Kahx0qI2OjZwMIF9yWNVYE7KW//ckHbwU1Hnh6a7EG23SdXbI/+Tuavm7w3APiRcnuGHvshkvDrFd2RjPQU3YEicRHoOw4J8dBiGLCLor12+b6yvVuB+5u8vyOwgnKbRvcMAS4Afk+xD1yjDVw4uDeQG0GTA5XtZWUdJH5Jk2ZFnHuAnyi3Z3TPCOB2YO+iO2K0h6tUrVOBjxTtrQuspWgvK4cq27sfGcGlsQWwpnKbRncsiaxlaT/ojBxw5eD+DfxZ2Wbemw0jgV2VbTZbewP4qXJ7Rnd8DrgDWK3gfhgd4jLZ/mRle7sCCynbbMY+6GZSPInUKU1jQ2xbv0yMQEbbyxfdEaNzXDq4x4DrFO0tiOyo5sEgJFhSk5ORnL40bPRWHgYDV2Ijt8rjWi6p1ZSsXfZXtpfGd9AVD3gJuKTJ+19GErKNcnAG8I2iO2F0j2sHNwG4W9HeGuSz2KsdGjIW+LDJ+8cot2d0zi4UH1xuKJGH4KX2KE47q6A/q5E9ZzILrcJmlkdi34ziWRbJxjFqQh6Cl9ciaUlaOaU7IYno2ilhfWiHhpxO88DnoxE9PaNYepAg3v5qHK6YCvwTyRl9CZgGvI+kVg0DVkZmLKtjwrSlZ090FRMOd9TP4cAMxX5OS2ymsThyU+etODGmje9Es93RGducWMC1jlG+1kbHVOAsZLc860NtGLK5dkMO/WvW70qS15Phz8Cv0Fu43x+RqOlVstfH99BNwzmX5jfHBsCNGW1tDizQbYeMhixI8wyTbnkTWYc9F3inzc9OAy5Kji8h67UB83iOaRn5AcWMBrIyAJik2L/30E3Sf0Gxb2PaaLeIv9nEnK/1BOXrnPO4EImp02R94CmHfe5/TFXuf27kWVXrAlrrx7eDdsjIVsByivbGA5MV7RluGI7+rjnI0sOeyKxgirLt+4C10c8Wqh15OjhtKaUdkFQaLTRv8o9oLmhplIeD+KTQixbvAlsi00pXvItI+p/qsI3Kk3dd1LOQRXwN5kNPjnpFJNFdi78AzyvaM9wwAP2Yt1nAtkjlK9f0Irvw5+bQViXJ28FpSykdgM41aIeGaMf+GW7YAv1yl0cCtyjbbMX3gdtybrMSFFHZ/jSaR/W3w3LApl3aWAhZJ9HiGiQP1yg/uyvbux6RMc+bj5BrcRUbWlmKcHAvors42u0UYw90VUpOVLRluGM+4FuK9t5HX6ChHV7DpO7noggHB7pSSt+m8wItPehuLvwduFfRnuGOjWgehN0uZyM6iEVyITZ7+BRFObjHkRQuDQYC+3b42U2QlBgtXAaLGrp8XdHWh4gCSdHMRl+HsdIU5eBAdyF+PzrL5zxMsQ8PATcp2jPcspGirRuBVxTtdcPlVDgwV5siHdxdyaHBkrS/nrIMMr3VwkZv1WIdRVuXK9rqlg9orhw9T1GkgwPdUVy7mw0Ho5fP9wyiAGtUg5Hopk81KyRUBDaTSCjawV2HrMdpsCXwxYznLkDn63aNaCVHbpSLUYq23qA809M+7iu6A2WhaAfXi96iaA/Z81MD9J7gLwMXK9ky8mEJRVtaD2hNnkNSueZ5inZwIDFxLynZ2geJb2qFZmjIacBMRXuGezRzmJ9StKXJC0V3oAyUwcF9iF7C8OeRPMBmeIhSqgZvAucr2TLyYxFFW28r2tJEW8GkkpTBwYGulFKrzQbN0ds4RCXFqBaaYpHtCljmRVn7lStlcXAzEGehwSbACinvLQFsp9TODEQdxagemvJIZXUkHxTdgTJQFgcHohWnJaWUNoo7ED2Z9vOwaUBVmapoSzOPWZMhRXegDJTJwb2JXsm2vZj7DzwYPRXgWcjmgmGU1cEtXHQHykCZHBxIib1ZCnYWYe5aozujt3t2IaLeYFSTNxRtldWRDC+6A2WgbA5OU0qpf4FoLVHL2cApSraMYviPoi1NsQZNlim6A2WgbA4O9AJ/N0LKrAGslxwaXA48q2TLKIZXFW2trmhLi+XQLX9ZWcro4J5AVHE1ODD5r6YkucmRV5+nFW19FhF7KBMbFN2BslBGBwd6TmQPZKi+s5K9G5CanUa1+S+663DdyuZrs3nRHSgLZXVwdwMTFOwMQ0aDgxVsgcmR14mHFG3toGirW4bQOptnnqGsDg70RnGrKdm5Cx2na5SDWNHWlpRnmroz+nVeK0uZHdz1lEtf3kZv9eJORVsDkXKBRTMA+HHRnSgTZXZwmlJK3fIwsv5m1IcJ6GaiHETxoRn7AqsW3IdSUWYHB1IhvuhKRSDT5d6iO2Go8hF6u/UA8yPpe5qJ/O3wBcozICgNZXdwmlJKnTKJcmnuG3r8SdneFugWMsrKICDEshfmouwODnSllDrhFORpb9SP24HnlW2ehji6vOhBRo4b59hmZaiCg3sPOLOgticjeadGPZmNFGzWZCDwV/KJRRsA/BZRsjYaUAUHB7pSSu1gcuT15/fozxAWQAqbH9jqxC4YhjhSl21Unqo4uLeQGzFPpiBDf6PeTMeNeMJ8wLnAVejHyG0JPAp8R9luGgOQHeJ2DqNNlkJGU705Hcfnc1mZeQG9axvTRrua3+nojG1OzPla50fW4lzdSzOQ2cDSGa8/jU2B/3XYT63jji6vc57lQvL5A00HFs3pmrLyAvn+6PvQ/F5HZ2xzYgHXur3ytTY6ZiFV5/ci2/3VA3wZ+BnwSA790zry3GRpipZ8d16cgtwcrmONzkc3GdsoP1cmx/YO2xiETCv7ppYvIo7rVWAaUst0eHKsgDi3sioGp/EQcFPRneijag6uT0rJ5dqDyZHPuxwKfB0YmVN7S9P9tLVsnFR0B+akKpsMc+Jaj+1i9ApRG9ViMrA7Ms0y2ucZZBRcGqro4O5BVwliTnqxdJd5nZsp3wZTVRiLxBaWhio6OHA3irsSXbVXo5ocB1xadCcqxsvARUV3oj9VdXA3IIuz2pRq/cAojL7d19sL7keVKGVQfFUdnIup5M3AP5VtGtXlfWAbZEnEaM6bSORB6aiqgwO4DIkN08JGb0Z/3kVium4puiMlZxwSO1o6quzgNKWU7sOir43GvANsjV693roxA33BAjWq7OAA/ohOQK7JkRvNmAnshsiBl2qXsASch+SKl5KqOzgNKaXH0VV2NepJLxIGsSnwSsF9KQulD4qvuoOD7qWUTI7caIfbkWr2FxfdkQy8i1ux1vHAaw7td00dHNwU4HcdfvYFpO6DYbTDFKSo+GZI9H4ZuRopQONq8X82MqItNXVwcACnI8PldhmLbFYYRifcgtTdPQRJ8yoDDwDfRIo/uyzYdDnwrEP7KtTFwb1M+1OGycgQ2zC6YRYiG74c4uiK+tHfCmwFrAfclkN7rnPCVaiamkgzTkFusqyEyCZFVbgZ+JySrRfbOPdvSm1C9h3v29GLcWznWrvhPcTRnQdsgmRCfBf4jMM2X0Me7OMRpZ1GXOegD88gmn2GYczDzA98C4kTexhZ8O9GSPJdJF7zOGBdiqvBWhnsCzKM/FgY2YEdBawELA58HilSMyw5ZxYSFTANGaG9ighAPImM0mzN2DAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMwzAMoz60qwfXgxTa2B7YEFgWGIoU4ZgE3An8AdGvMozKEMRRD7AyIiS5cnJ8AdFsG4bc5/Mlp09DFHwnA68jCrdPIyq3D4ae/36efTfSacfBbYnUQFw1w7nnAkdRLUnw3AjiaGngs8pmnw49vzTfdxBHfWKOmjwXev7bWsaCOFoMqVr/bcBD528yCyn8cgNwTej5ExVsdkwQR6sDAxVMPRp6vssShB8TxNFgsvmZlmSpyTAQcWw/aMPuQcDvMd32NDYG/qRs8zDgLGWb3fBXYH1FezOAJbs1kvx4fKRmwmboF16aD9ggOY4P4uhppGbC+NDzi6i8FfOJWnA3jACmKtjJwheAhzQMtfrj9iCOqh3nZrTmz8BLyjb3V7bXMUEcrYOucwM4N/T8qZ1+OIijhYM4+hHwPPL9b0E+VeVGAScB/w7i6PwgjlbJoU0jodUf+GBg7zw6Mi8Rev6HwKnKZlcL4shTttkphynbmwn8ppMPBnE0JIijI4DngJOR0UERDAb2AR4N4uiCII66Ho0arWnm4BZHSvGl8QZwKVIf8WTgImxzoR0uAN5Utln4KC6Io5HALspmLww9/7UO+rIZ8DjiHBdR7lOnDEQGDc8EcfSjII7qVLqzdDRzcEch1X4a8QtgKeRGPgb4CbAnsvO0OuLsclmQrCqh588Aximb3TGIo0WVbbbLfshoRYuPaHO0G8TRsCCOLkJqyS6v2BdNFkAGBg8kGwGGA9IcXA/pT+GjgOOBtK3wxxBn92h3XZsnOAdZPNdiCLCXor22SEYjBymbvSL0/MzV4oM4+hrwCLC7cj9csQbwjyCOtKf1BukObhVgiQav/4dy7dRVmtDz30TiBjU5IInpKoJtUdjp7MdJWU8M4uhg4HZgaeU+uGYIcGYQRxcHcZQ2azI6IM3BfSnl9WuQOB9Dj9PR/U5XBDZRtNcO2qOQ60PPf7jVSUEcDQzi6GxkRDxfq/NLzG7AHck6pqFAmoNrNHoDGfobioSe/yIStqDJAcr2WpKsI31d2eyJGdodjHx/hyi3XRTrAbHtsuqQ5uAWTnm97Z0sIxMnK9vbLonSz5PvK9ubEHr+Xc1OCOJoIPAXYEfltotmFDKSMyfXJWkOLu316a46Mi8Tev4TyPRfi0HkGL8YxNEIZHqlSdPRW7LOOB7YTrndsrA8cGsJdsUrTbuR3KXJdawhv1a2t38QR3lE6oM406GK9iYCN7Y45ziqs1PaKSsBVyXTcKMD8voBGC0IPf9uYIKiyS8iAglOSZyo9vrXyaHn9zZpc2fgZ8ptlpWvAb8ruhNVpawO7nPAmsBoYBtgIySAeKHiujQXKyC7lZshu87zK9jUHsUdqGyvEVsjsllaTAIuS3sziKMVgfMV26sCY4I42rfgPlRyd3oQso7RnzVTzv8JosLQiquSIysjEIWHbYGvIGlijehFfgD3Ij+Cm4EP2minP5sDQYPXxwH/bPD64shi+l7MndP4ARKmcFQX/bkeCZRerQsbc7J1EEdLhZ6vndg/J4cq2xsbev7sRm8kgcSXAgsqt1kFzgriaELo+U8V1P5ngP8W1HbHDKK9yPctMp73Atkc3PLAz5GsiSzrDD3IyGkFZP1lCuJUTqMzKZdVaXz9V/FpB9eDTMNOJH0UOQRYp4M+fEzo+b1BHPXl9WowANgXSa1TJ4ijUchDQovXaPzA7ePHwFqK7TVjOvAgsh74L0TkcjoyUh+GpCquifzN89ixnh8YH8TRhmkPAGNuikr0HQT8FPh/dDf0HZHYOBBRPrm8+67NxVDgj8DODmw34i/A/6AXjb9fEEcnJAom2miP3k4LPX9mozeSqenPldvrzyzk+78cuDn0/Jazg2Q3d31gB2R24zKpf33kQWvZRBkpYg3ui8BdyC6Y1rx+UWTKOh7d3byhwLXk59z6pJSaqbi0y+LIOqYqQRwthG7e6xSaL6afgm4S/5zMBM4Elgs9f8/Q86/J4txARt2h598bev4PgWWAI3E7lTs+iKOyKKOUnrwd3OrAfUi0tgv2Am5FR8G0B3maf0PBVrtoSykdrGirjzHobvqcFXp+wzjLII42RtZnXXA3sHro+YeHnv9yN4ZCz58eev7pSLrcH1V6NzfDkcGBkYEBwMMNjtdTzp+Ucn7/o5E088rAbbTW6Z+CyF3/HJl6fo9P1r9uIl3FpI+vArfQ/UL0sYhWfyPeBp4E/gG82mU7c5HUVjhT0eSmQRwtp2UsmZZpOs0ZNJ92uZqa/gb4euj5z2gaDT1/Wuj5+yDBzy5iR/dLal4YLRhE4x3TX9J4YXpf4I4O2hmBTPWaRWVPTNq9nubJ5wshmxI/J1254ivIQr2P7Ly2yxrI2l5/Lkc2NSbwab275RBHrKnrdQ6yqP4ZBVs9SH7qjxVsgYTGrKxkC+APoee/0eiNII7Wx414wA9Dzz/Ngd2PCT0/DOLoJeTeT0t/7ITBwNHIdNhoQl5T1DNJFx78AKn5sDbwN1ora7yDSAythDiBNL6LiC92wjF8egNmFrIOtxPwd+YW83wOCTzdvsP25iL0/LeQehhafE8xIl4zsHcWsguehovp9XGunVsfoefHyL2orcKzdxBHmuvNtSQPB7cFsEfKe28jwbzjaH+k9R6yi3cAkLZtPpbONPiH9Pv3rjQJPp0DbRVjTSmlkciItiuCOFqW9Kl7J1yUtvYVxNEw9BPpI3Jewwo9/3b0sz2GIQ9cowmuHVwP6TuCM4GtkKDdbvg9cHjKe8Pofv3mF8CVXdroiCRA9xJFkxqZDYfQfsHwNHpprqSyHemy+Z0wGdivWRqYK0LP/wP691Hdc3G7xrWD+zbp61JHITtYGpxF+ghrL9IzI1pxK/CrDj+rxSl0to7YiI2DOOp47SyZEmmqlFzRYoH/u4ptARyZTP2L4lBkiUWLjYM40i4gXitcO7i09ZN/Ar9VbutwGt8889NZvNbbyecKjRp3IKXUzShuN2TDSItUOfJkvTBr5kwWJiJhP4WRFH7WjHEcRA6CClXGpYMbBnwz5b0T0Hccr5G+KN/JOs6PgFc6744qmkn4ewZx1KkwgGbmwk2h5zerXv4VdAQM+jitiKlpA85Gt9CQtopyrXDp4DancSrYK8DVjto8L+X1tWlvmno/+sVgOib0/HuAWMncCDqoW5oE235ZqQ/Q2mlrFrF+GzdpfG0Tev4U4ApFk+bgmuDSwa2d8vq1uJv2PQs8kfJeO0nap1Pw1LQBmqO4TgpEa47e7g09/44W52g60+uzpl7lhKaDG9XFiLz2uHRwaTdot7umrUiz304QbqtsiSK4Ab1asxsEcbRG1pOT2gCa0uAti8mQXtmtE25VtKXBbYCW+MEAdIOua4VLB/e5lNefdNgmQJpeVqsUsVKTrB9pjuLaqbx1IDBQqd3HkVF8K1ZSag8kfbA0hJ7/LroV6kYp2qoVrjcZGjHVYZsAaWEAGgn4RXMZorWnwe5BHLXM1w3iaAidTWnTOKnVYn8S4KsV/9aLONWy8ZiirTzyUiv5+3Hp4NKe+NrR/lnta41ACiORUjpVydxCNFYz7s8uSBaEBs8jiryt0PzBvpqMmMrGi4q28nBwWsHdueLSwU1NeX24wzYhXXBwquN28+KPQMPE9A7IMk3VTDEam1F4UzN7YYqiLU00+zUvSrhnwqWDS9Mz01xbacQKKa9XTk++EcpSSmsHcZSqzRfE0VeBdZXamgz8/4znak6HNDMHNHlb0ZaG4kwtceng0tY9tH4waaTZd725kSfnoBcs2mwUpzl6OzNxznnTUAK9BLiQkDf64dLBpUWpu1JmBViC9MIvzaLmK0USLKpVK3OXII6G938xiKPPoyfVPo32UvM0Mw7KGiPWX7HGcIBLB3cLjW/UZYFNHbWZpv82CVngrhNaUkpDaSxntT96NTPOCT2/nSnZNKV2oVy1dOdEs19lnYYXjksH9ypSXKYRxzpobwTp0faakeOlINFQu1jJ3KemqUEczYde0ej3gTPa/IzmrqemOIAmmiog5uBScK0mklaBfDSiTKHJiTTeQe1FirjUES0ppS8FcTRn7qdPZ0KhjTg/9Px2N3i6Kv7Sj8WTuLqyoVYjAwd1QRpgYSINuARIq6p+HlJ4WYNdSB9xXIYU7q0doec/ici8azBnMK9W3mlHJRCTuDXNUclqira00KzfkYeDy/MhMVzLkGsH9yHp09EFgZuBVbps4zvAn1Le+wD3xYKLppkibjvsFMTRokEcrQlspGTzktDzOw1ofVqpD9C4sFJhJJs6mvmjmt9VGsNzaEO9rTxqMlwE3Jjy3hKIqm8nxVoGAD9FNPbTFsNPAFRLwpWN0PPvBe5UMDUYEfj8voItkKnz2C4+r5letZmiLQ02Q++39yH53ON5lilcQstQXlW19gP+k/LecGQT4DqyFYQeCGwNPAj8D+kpWHfR3Q+sSqQq47bJoWRL38rC3xI14k55UKkfAFuUbB1OK/wG4OHQ87UrdjUiT8USNfGARoKULngZ0de/lfQ0nG8lx9PA/yIS068D0xEnuBSiMbcFrZ8mk5CF8jz+8GXgJkQxI7MEUgrLdN+Vj+nW6U5Q6YUwP7KppS2T3zZBHC2BLKto0ep7eged9bN29BS7JU1Lsl1m5DWCA7gH2AZxWM0YhYwkzkdqEdyOVLofB4yhtXN7FtmlTRsx1o5EnUNrLU6DW0PPv79LG4+gm695ZBL+UjQ/RC++EOT30YzXldpZL486rEEcDURPzXlyng4OROjPQ5yQC24BvopumEFVuJzyBDN3PWUOPf8jZNlCi+WBgxTttU0QRyuhm/72HrJR1wytB/0QdIsApfFNYGElW6/n7eBApp5roVu1/X2kqtbmpCf51xplKaVu+Efo+VoKulcp2enjV0EcfVHZZiaSkcn56I7ebsiQ36sZIrWPoq000rKROuFfRTg4kGnqAcCGyKirU2YBFyILoGeim8NYRS6keNUUrQ0PEOVfzQfWQkCYlCTMm1+gW0gHYHyGczRDSLYO4kgzfu9TJDV7O4moSOOptOjkNWkcO3QjInujzYpIsO62yEJ5s82P6UjdhSuTo5sf9Ko03rm9DV1BwtwI4uhYiitW/SSwWuj5agV7gjg6A/iBlr2E8cDeeZURDOJoD9JjNTvlVWDpZCrfrO310a2DcicwWvu7C+KoBxnsbKJodrM0RzIxOfLiX0jM2glIPNaXkFShYcm/30MEK59H1u+0fkBPkF6Fq6qcAxxDMRphJ2s6t4SzkU0nTUXmMcCsII4OauUguiWIo70QkVJtzsrY94eQgHct9ZKvI8H72g/RY9B1brOB+yqZX2Y0J4ijU4Gjcm72JWB5FzFZQRz9mQ5quWbgBmC3RH5KlWTN7QTkh6vNFGT01ioioa8vNyHr05ocHHr+uRqGgjg6CP0QnrtCz9+oqDU4wy1aUkrtcIrDgNPjcFPLYyvgsSCOfE2jSbrbXbhxbiDfdSbnlpClilm7/DaIo7FBHHUcSxvE0XxBHP0GN/GJ10BFFQKM1gRxdAGwd07NvYGMKJwp9gZxdDa6IRb9uQfJfLm602l2EEdfAY4GdsTdb+t5YNXQ8zPX7g3iaDEkdMpF4aXHgKNDz09Lx2zUnx4kqP8Uus9Fb0QvsEzo+S+ag6spyY7UE+TzEDs29PwsxZw7JoijRZCat4u6bAdxIBGi0vKPZo4kmYauggSwb0e2VMNu2Tb0/Kvb/VAQR1cD33bQnz6eBP6CZCs93H+EGcTRZ5CNy28iyw0uHFsfN4eevwXYCK7WBHEUoVuRvhHvIKO3qY7bIYijHRH5q7z4CElkfxbZ5JqGqOAMA5ZEZJg0K4C1Igw9vyMdxSCONkGcT168wSd1Q4aiV3oyC1uGnn8TmIOrNQ5CBBpxcuj5P3HcxscEcXQpsFNe7ZWIV4A1Qs/vOC4wiKN7kEyfOvNA6PkfF56yTYYaE3r+fcAdDpt4H70ShlnZH3gu5zaL5kNgp26cW8LRGp0pOUfO+Q9zcPXn1w5tjw89/zWH9uci9PxpwA7o1m0oO0eFnn93t0ZCz5+AqGzXlUtCz4/nfMEcXM1J1iImOjD9EQXp7YWe/xCwK3oB32Xmt6Hnj1O0dwSyPlY3JtMg48Uc3LyBCymlS0PPL0y9JNlJ1KodUVb+ChymaTApALQH9crbno0EbM81hTcHN2/QTk3SrGgm1XdEEkl/ZMsTq8k1wC4uUsmSmLXjtO0WyDGh59/W6A1zcPMG2iOda0LPf0zZZkeEnn86UlGtTtPVS4EdQs+f6bCN48mmRlJ2zgk9P3WpxBxczQniaEVgS2WzhY/e5iT0/N8h2QN12Hj4DbCrY+fWpwK9LxC6bMcx59GiSJI5uPpzMLrxjn8PPf8eRXsqhJ4fARtQHlXjdvkAGBN6/lF5yTgl09890RWfzYtTkYT/pt+VBfrWmCCOFkQCRLUkoAG2aifvMG+COBqBPNmrFAz8JDJqe7ioDgRxdASyK55XIapO+QA4JPT8C7KcbCO4erM7us7toTI7N4DQ86eEnr8zslNY9nCI2cAZwNpFOjf4eC1zI9zVS9HgcWDdrM4NzMHVlkSxQauIcx+lWntrRuj5FyNS9udTzpCI+5Ef6xHtKIO4JMl8+TISHF6mkpvvAT8D1go9/9F2PmhT1JoSxNE3EOl1Lf4FrOxAsdc5QRythjjnbYruCzJC+ilwRV5rbZ0QxNGyiGDnLriRWcpCX82V40LPf7UTA+bgakoQR39Fim1rsW87U4MyEsTRGkg+5s7kv9Z0P7IwHrmWSdckcXSHI1P+ETk1+1/EsY0LPf+VbgyZg6shSWm859BbgngZkSN3GrqQF0EcjUQq3e+BXhX1RkxGYtrGh54/0WE7zgniaAiiJ7c9ooQ8TLmJt4Drkfq+N2ipQ5uDqyFBHP0a+LGiySNCzz9D0V5pCOJoSWTqujHwNWCpLsy9g8hTTUDqPTxQ5mlopyRCn2shZRDXQirhLYuUZczCO8Ak4BHgQSBGRDLVlz/MwdWMII7mR0JDPqtk8k1E/rmdGgCVJRndrQqMApYAFgMWQaa0Q/kkmPhNZCo1GVlXewL4d5Wmn9okqssjke9rMJ+M8t4GZiK72v9VkH3KjDm4mhHE0ffQLVP3y9Dz65S3aMxDWJhI/dBUn5gBnKVozzByxRxcjQjiaEOksIcW54We/5aiPcPIFXNw9UJz9DYLSfw2jMpiDq4mBHG0OLKFr8X4ToMrDaMsmIOrDweiF7w6m4LkyA1DE3NwNSCIo8HAAYomLw89v8xJ14aRCXNw9WAH4POK9lxW4jKM3DAHVw80NxdurHpakWH0YQ6u4gRxtA6wvqLJExVtGUahmIOrPpqjt7v6F841jCpjDq7CJHmTOyuatNGbUSvMwVWb/YAhSrYeQRQwDKM2mIOrKEEcDUJi37Q4qY7SPsa8jTm46rIt3WmXzckk4AolW4ZRGszBVRfNgjKnhJ7/oaI9wygF5uAqSBBHqyMKtBpMBsYr2TKMUvF/mrgkOT9vXHoAAAAASUVORK5CYII=" width="72" height="50" alt="Villa for You">
+      <img class="logo-white" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATgAAADZCAYAAAC0ECz5AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAACxEAAAsRAX9kX5EAAAaXaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDggNzkuMTY0MDM2LCAyMDE5LzA4LzEzLTAxOjA2OjU3ICAgICAgICAiPg0KCTxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+DQoJCTxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIFBob3Rvc2hvcCAyMS4wIChNYWNpbnRvc2gpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyMC0wNi0wM1QyMTo0NjowMyswMjowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyMC0wNi0wM1QyMTo0NjowMyswMjowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjAtMDYtMDNUMjE6NDY6MDMrMDI6MDAiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NDUyNzY1MjAtNjQ2OC00OWJhLWJlYWEtZGQ4Y2UwMzQ3MWU2IiB4bXBNTTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6MWIzOWU1MGQtZWZmZi1lMDQ2LWJiNjQtOGE3ZThiMWIzZWQ5IiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6MDZlZTI5ODUtNTdmMy00YTA4LTk1YjgtZWJjYWI3MjBkMmFlIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIj4NCgkJCTx4bXBNTTpIaXN0b3J5Pg0KCQkJCTxyZGY6U2VxPg0KCQkJCQk8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iY3JlYXRlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDowNmVlMjk4NS01N2YzLTRhMDgtOTViOC1lYmNhYjcyMGQyYWUiIHN0RXZ0OndoZW49IjIwMjAtMDYtMDNUMjE6NDY6MDMrMDI6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMS4wIChNYWNpbnRvc2gpIi8+DQoJCQkJCTxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDo0NTI3NjUyMC02NDY4LTQ5YmEtYmVhYS1kZDhjZTAzNDcxZTYiIHN0RXZ0OndoZW49IjIwMjAtMDYtMDNUMjE6NDY6MDMrMDI6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMS4wIChNYWNpbnRvc2gpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+DQoJCQkJPC9yZGY6U2VxPg0KCQkJPC94bXBNTTpIaXN0b3J5Pg0KCQk8L3JkZjpEZXNjcmlwdGlvbj4NCgkJPHJkZjpEZXNjcmlwdGlvbiB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+PHRpZmY6T3JpZW50YXRpb24+MTwvdGlmZjpPcmllbnRhdGlvbj48L3JkZjpEZXNjcmlwdGlvbj48L3JkZjpSREY+DQo8L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9J3cnPz6/UnNHAAAsdklEQVR4Xu3deXhcVf0/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" width="72" height="50" alt="Villa for You">
+    </div>
+    <button type="button" class="btn btn-ghost btn-icon" id="themeBtn" aria-label="Switch to dark theme"></button>
   </header>
 
-  <div class="wrap">
-    <h1>Photography Pricing Calculator</h1>
-    <div class="sub">
-      Build a quote for a single home, multiple homes (same location), or multiple locations.
-      <span class="badge">30–40 photos per home • editing included</span>
+  <main class="shell">
+    <div class="page-header">
+      <span class="eyebrow">Photography</span>
+      <h1>Photo shoot price calculator</h1>
+      <p>Add the homes to be photographed and the price updates as you go. Based on the 2026 photographer rates: 30–40 edited photos per home.</p>
     </div>
 
-    <div class="grid">
-      <!-- LEFT -->
-      <div class="card">
-        <div class="hd"><h2>Setup</h2></div>
-        <div class="bd">
+    <div id="linkError"></div>
 
-          <div class="topBar">
-            <div class="row" style="margin:0; grid-template-columns:auto auto; gap:10px;">
-              <label style="margin-right:8px;">Country</label>
-              <select id="country">
-                <option value="AT" selected>Austria (AT)</option>
-                <option value="NL">Netherlands (NL)</option>
-                <option value="DE">Germany (DE)</option>
-                <option value="FR">France (FR)</option>
-                <option value="BE">Belgium (BE)</option>
-              </select>
-            </div>
-            <div class="mini muted" id="countryHint"></div>
+    <div class="layout">
+      <div class="builder-col">
+        <section class="panel country-panel" aria-labelledby="countryTitle">
+          <div class="panel-title-row">
+            <h2 class="eyebrow" id="countryTitle">Country</h2>
+            <span class="hint">Sets the rates and how travel is charged</span>
           </div>
+          <fieldset>
+            <legend class="sr-only">Country of the shoot</legend>
+            <div class="seg" id="countrySeg"></div>
+          </fieldset>
+          <details class="rates-details">
+            <summary><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg><span id="ratesSummary">2026 rates</span></summary>
+            <dl class="rates" id="ratesList"></dl>
+          </details>
+        </section>
 
-          <div class="pillbar" id="modeBar">
-            <div class="pill active" data-mode="single">Single home</div>
-            <div class="pill" data-mode="multi_same">Multiple homes (same location)</div>
-            <div class="pill" data-mode="multi_locations">Multiple locations</div>
-          </div>
-
-          <div class="divider"></div>
-
-          <!-- SINGLE -->
-          <div id="singlePanel">
-            <div class="row">
-              <label>Location name (optional)</label>
-              <input id="s_locationName" type="text" placeholder="e.g., Kirchberg Haus" />
-            </div>
-
-            <div class="row">
-              <label>One-way distance (km)</label>
-              <input id="s_km" type="number" min="0" value="0" />
-            </div>
-
-            <div class="row" id="sTravelTierRow">
-              <label>Travel tier <span class="badge" id="s_tierBadge">0–50 km</span></label>
-              <div class="inline" style="min-width:280px">
-                <label class="chip" style="margin:0">
-                  <input type="checkbox" id="s_tierOverride" />
-                  Override
-                </label>
-                <select id="s_tierSelect" disabled style="max-width:180px">
-                  <option value="0_50">0–50 km</option>
-                  <option value="51_100">51–100 km</option>
-                  <option value="100_plus">100+ km</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="mini muted" id="sTravelInfo">Travel is charged <strong>once per location</strong>.</div>
-
-            <div class="divider"></div>
-
-            <div class="locHeader">
-              <h2 style="margin:0">Home details</h2>
-              <div class="presetBar" aria-label="Presets (single)">
-                <button class="preset" type="button" data-preset="single_standard">Standard</button>
-                <button class="preset" type="button" data-preset="single_exterior">Exterior only</button>
-                <button class="preset" type="button" data-preset="single_family">Family home (4 beds)</button>
-                <button class="preset" type="button" data-preset="single_drone">+ Drone</button>
-              </div>
-            </div>
-
-            <div class="row">
-              <label>Acco ID (optional)</label>
-              <input id="s_accoId" type="text" placeholder="e.g., AT.12345.01" />
-            </div>
-
-            <div class="chips">
-              <label class="chip"><input type="checkbox" id="sExt" checked /> Exterior</label>
-              <label class="chip"><input type="checkbox" id="sInt" checked /> Interior</label>
-              <label class="chip"><input type="checkbox" id="sDrone" /> Drone</label>
-              <label class="chip"><input type="checkbox" id="sAcc" /> Accessories</label>
-            </div>
-
-            <div class="row" id="sBedsRow">
-              <label>Bedrooms (for Interior)</label>
-              <input id="sBeds" type="number" min="0" value="2" />
-            </div>
-
-            <div class="row" id="sAccDaysRow" style="display:none">
-              <label>Accessories days</label>
-              <input id="sAccDays" type="number" min="1" value="1" />
-            </div>
-
-            <div class="row">
-              <label>Notes (optional)</label>
-              <input id="s_notes" type="text" placeholder="e.g., key handover, special shots, best time for exteriors…" />
-            </div>
-          </div>
-
-          <!-- MULTI SAME -->
-          <div id="multiSamePanel" style="display:none">
-            <div class="row">
-              <label>Location name</label>
-              <input id="ms_locationName" type="text" placeholder="e.g., Park X" />
-            </div>
-
-            <div class="row">
-              <label>One-way distance (km)</label>
-              <input id="ms_km" type="number" min="0" value="0" />
-            </div>
-
-            <div class="row" id="msTravelTierRow">
-              <label>Travel tier <span class="badge" id="ms_tierBadge">0–50 km</span></label>
-              <div class="inline" style="min-width:280px">
-                <label class="chip" style="margin:0">
-                  <input type="checkbox" id="ms_tierOverride" />
-                  Override
-                </label>
-                <select id="ms_tierSelect" disabled style="max-width:180px">
-                  <option value="0_50">0–50 km</option>
-                  <option value="51_100">51–100 km</option>
-                  <option value="100_plus">100+ km</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="mini muted" id="msTravelInfo">
-              Travel is charged <strong>once</strong> for this location (regardless of number of homes).
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="locHeader">
-              <h2 style="margin:0">Homes at this location</h2>
-              <div class="presetBar" aria-label="Presets (same location)">
-                <button class="preset" type="button" data-preset="ms_parkday">Park day (3 homes)</button>
-                <button class="preset" type="button" data-preset="ms_standard_all">Standard for all</button>
-                <button class="preset" type="button" data-preset="ms_add_drone_all">Add drone to all</button>
-              </div>
-            </div>
-
-            <div class="row">
-              <label>Number of homes</label>
-              <div class="inline">
-                <input id="ms_homeCount" type="number" min="1" value="3" style="max-width:110px" />
-                <button id="ms_buildHomesBtn" type="button">Build list</button>
-              </div>
-            </div>
-
-            <div id="ms_homesList"></div>
-
-            <div class="row">
-              <label>Notes (optional)</label>
-              <input id="ms_notes" type="text" placeholder="e.g., park entrance, contact person, timing…" />
-            </div>
-          </div>
-
-          <!-- MULTI LOCATIONS -->
-          <div id="multiLocPanel" style="display:none">
-            <div class="row">
-              <label>Number of locations</label>
-              <div class="inline">
-                <input id="ml_locCount" type="number" min="1" value="2" style="max-width:110px" />
-                <button id="ml_buildLocBtn" type="button">Build locations</button>
-              </div>
-            </div>
-
-            <div id="ml_locations"></div>
-
-            <div class="hint">
-              Travel is charged once per location. Use “Duplicate” to quickly copy a similar location setup.
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="btns">
-            <button class="primary" id="copyBtn" type="button">Copy quote</button>
-            <button id="saveLinkBtn" type="button">Save link</button>
-            <button id="exportPdfBtn" type="button">Export PDF</button>
-            <button id="resetBtn" type="button">Reset</button>
-          </div>
-
-          <div class="hint" id="validationHint" style="display:none"></div>
-        </div>
+        <div id="builder" class="builder-col"></div>
       </div>
 
-      <!-- RIGHT -->
-      <div class="card">
-        <div class="hd"><h2>Price overview</h2></div>
-        <div class="bd">
-          <table>
-            <thead>
-              <tr><th>Item</th><th class="right">Amount (€)</th></tr>
-            </thead>
-            <tbody id="rows"></tbody>
-            <tfoot>
-              <tr><td><strong>Total</strong></td><td class="right" id="totalCell">€0,00</td></tr>
-            </tfoot>
-          </table>
-
-          <div class="totalWrap">
-            <div class="totalCard">
-              <h3>Total</h3>
-              <div class="big" id="bigTotal">€0,00</div>
-              <div class="mini muted" id="scopeLine">—</div>
-            </div>
-          </div>
-
-          <div class="hint" id="pricingSummary"></div>
+      <aside class="panel summary" id="summary" aria-labelledby="summaryTitle">
+        <div class="sum-head">
+          <h2 id="summaryTitle" tabindex="-1">Quote total</h2>
+          <div class="sum-total" id="sumTotal">€ 0,00</div>
+          <div class="sum-scope" id="sumScope"></div>
         </div>
-      </div>
+        <div class="sum-body" id="sumBody"></div>
+        <div class="sum-actions">
+          <button type="button" class="btn btn-primary btn-lg" id="copyBtn"></button>
+          <div class="sum-actions-row">
+            <button type="button" class="btn btn-secondary" id="linkBtn"></button>
+            <button type="button" class="btn btn-secondary" id="printBtn"></button>
+          </div>
+          <button type="button" class="btn btn-ghost" id="resetBtn"></button>
+          <p class="fine">Estimate based on the 2026 photographer rates. No rights can be derived from it.</p>
+        </div>
+      </aside>
     </div>
+  </main>
+</div>
+
+<div class="mbar" id="mbar">
+  <div>
+    <div class="eyebrow">Total</div>
+    <div class="mbar-total" id="mbarTotal">€ 0,00</div>
   </div>
+  <button type="button" class="btn btn-secondary" id="mbarBtn"></button>
+</div>
+
+<div class="toast-region" id="toasts" aria-live="polite"></div>
+<div class="sr-only" aria-live="polite" id="live"></div>
+<div id="print" aria-hidden="true"></div>
 
 <script>
 /* =========================================================
-   PRICING CONFIG (Multi-country ready)
-   - AT: tier travel (unchanged behavior) + interior extra bedroom continues (no cap)
-   - NL/DE/FR/BE: €0.26/km round trip travel + interior extra bedroom +€20 capped at 8 bedrooms
+   Rates — 2026 photographer rate cards
+   (04 Partners and Contacts/Photographer onboarding kit/Prices)
    ========================================================= */
-const PRICING_BY_COUNTRY = {
-  AT: {
-    currency: "EUR",
-    label: "Austria",
-    prices: {
-      exterior: 50,
-      interior: { base: 80, included_bedrooms: 2, extra_bedroom: 10 },
-      drone: 55,
-      accessories_per_day: 10,
-      travel: { type: "tier", tiers: { "0_50": 32, "51_100": 64, "100_plus": 96 } }
-    }
-  },
+const PER_KM_COUNTRY = (label) => ({
+  label,
+  exterior: 80,
+  interior: { base: 85, included: 3, extra: 20, cap: 8 },
+  drone: 55,
+  accPerDay: 10,
+  travel: { type: "per_km", rate: 0.26 },
+});
 
-  NL: {
-    currency: "EUR",
-    label: "Netherlands",
-    prices: {
-      exterior: 80,
-      interior: { base: 85, included_bedrooms: 3, extra_bedroom: 20 },
-      drone: 55,
-      accessories_per_day: 10,
-      travel: { type: "per_km_roundtrip", rate_per_km: 0.26 }
-    }
+const RATES = {
+  AT: {
+    label: "Austria",
+    exterior: 50,
+    interior: { base: 80, included: 2, extra: 10, cap: null },
+    drone: 55,
+    accPerDay: 10,
+    travel: {
+      type: "band",
+      bands: [
+        { id: "0_50", label: "0–50 km", max: 50, price: 32 },
+        { id: "51_100", label: "51–100 km", max: 100, price: 64 },
+        { id: "100_plus", label: "100+ km", max: Infinity, price: 96 },
+      ],
+    },
   },
-  DE: {
-    currency: "EUR",
-    label: "Germany",
-    prices: {
-      exterior: 80,
-      interior: { base: 85, included_bedrooms: 3, extra_bedroom: 20 },
-      drone: 55,
-      accessories_per_day: 10,
-      travel: { type: "per_km_roundtrip", rate_per_km: 0.26 }
-    }
-  },
-  FR: {
-    currency: "EUR",
-    label: "France",
-    prices: {
-      exterior: 80,
-      interior: { base: 85, included_bedrooms: 3, extra_bedroom: 20 },
-      drone: 55,
-      accessories_per_day: 10,
-      travel: { type: "per_km_roundtrip", rate_per_km: 0.26 }
-    }
-  },
-  BE: {
-    currency: "EUR",
-    label: "Belgium",
-    prices: {
-      exterior: 80,
-      interior: { base: 85, included_bedrooms: 3, extra_bedroom: 20 },
-      drone: 55,
-      accessories_per_day: 10,
-      travel: { type: "per_km_roundtrip", rate_per_km: 0.26 }
-    }
-  },
+  NL: PER_KM_COUNTRY("Netherlands"),
+  DE: PER_KM_COUNTRY("Germany"),
+  FR: PER_KM_COUNTRY("France"),
+  BE: PER_KM_COUNTRY("Belgium"),
 };
+const COUNTRIES = ["AT", "NL", "DE", "FR", "BE"];
 
 /* =========================================================
    Helpers
    ========================================================= */
-const el = (id) => document.getElementById(id);
-const money = (v) => `€${Number(v||0).toFixed(2)}`.replace('.', ',');
-const clampInt = (n, min=0) => {
-  const x = parseInt(n, 10);
-  return Number.isFinite(x) ? Math.max(min, x) : min;
+const $ = (id) => document.getElementById(id);
+const eurFmt = new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" });
+const eurWholeFmt = new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
+const kmFmt = new Intl.NumberFormat("nl-NL", { maximumFractionDigits: 1 });
+const dateFmt = new Intl.DateTimeFormat("en-GB", { dateStyle: "long" });
+const eur = (v) => eurFmt.format(v || 0);
+const eurShort = (v) => (Number.isInteger(v) ? eurWholeFmt : eurFmt).format(v);
+const round2 = (v) => Math.round(v * 100) / 100;
+const sum = (arr) => round2(arr.reduce((a, b) => a + b, 0));
+const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function parseKm(s) {
+  const n = parseFloat(String(s).replace(",", "."));
+  return Number.isFinite(n) && n >= 0 ? Math.min(n, 9999) : 0;
+}
+function parseCount(s, fallback) {
+  const n = parseInt(s, 10);
+  return Number.isFinite(n) ? Math.min(Math.max(n, 1), 99) : fallback;
+}
+
+const ICONS = {
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  minus: '<path d="M5 12h14"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  trash: '<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="m19 6-1 14H6L5 6"/>',
+  copy: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+  link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+  printer: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  pin: '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+  home: '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
+  alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4M12 17h.01"/>',
+  note: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  reset: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+  down: '<path d="M12 5v14M19 12l-7 7-7-7"/>',
 };
-const safeNum = (n) => {
-  const x = Number(n);
-  return Number.isFinite(x) ? x : 0;
-};
+const icon = (name) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
 
-function travelTierFromKm(km){
-  const k = safeNum(km);
-  if (k <= 50) return "0_50";
-  if (k <= 100) return "51_100";
-  return "100_plus";
+/* =========================================================
+   State
+   A quote is a list of locations; each location has its own travel
+   cost (charged once) and a list of homes.
+   ========================================================= */
+let uidSeq = 0;
+const uid = () => "i" + (++uidSeq).toString(36);
+
+const newHome = () => ({ id: uid(), accoId: "", ext: true, int: true, beds: 2, drone: false, acc: false, accDays: 1 });
+const newLocation = () => ({ id: uid(), name: "", km: 0, tier: "0_50", notes: "", homes: [newHome()] });
+
+function rememberedCountry() {
+  try {
+    const c = localStorage.getItem("vfy-calc-country");
+    if (RATES[c]) return c;
+  } catch (e) {}
+  return "AT";
 }
-function travelTierLabel(tier){
-  if (tier === "0_50") return "0–50 km";
-  if (tier === "51_100") return "51–100 km";
-  return "100+ km";
+const defaultState = (country) => ({ country: country || rememberedCountry(), locations: [newLocation()] });
+
+let state = defaultState();
+const notesOpen = new Set();
+
+const rates = () => RATES[state.country];
+const isBand = () => rates().travel.type === "band";
+
+function bandFor(km) {
+  const bands = RATES.AT.travel.bands;
+  return bands.find((b) => km <= b.max) || bands[bands.length - 1];
+}
+const bandById = (id) => RATES.AT.travel.bands.find((b) => b.id === id) || RATES.AT.travel.bands[0];
+
+/* =========================================================
+   Pricing
+   ========================================================= */
+function interiorCost(r, beds) {
+  const { base, included, extra, cap } = r.interior;
+  const charged = cap ? Math.min(beds, cap) : beds;
+  return base + Math.max(0, charged - included) * extra;
 }
 
-/* IMPORTANT: we attach _country to the returned prices so calculations can be country-aware
-   without making calc functions depend on the DOM. */
-function getPricing(){
-  const c = el("country").value;
-  const cfg = PRICING_BY_COUNTRY[c];
-  const p = cfg?.prices || null;
-  if (!p) return null;
-  return { ...p, _country: c };
+function interiorDetail(r, beds) {
+  const { included, extra, cap } = r.interior;
+  const charged = cap ? Math.min(beds, cap) : beds;
+  const extraBeds = Math.max(0, charged - included);
+  if (!extraBeds) return `Up to ${included} bedrooms included`;
+  let s = `${included} included + ${extraBeds} extra × ${eurShort(extra)}`;
+  if (cap && beds > cap) s += ` (charged up to ${cap})`;
+  return s;
 }
 
-function getTravelType(prices){
-  return prices?.travel?.type || "tier";
+function homeItems(r, h) {
+  const items = [];
+  if (h.ext) items.push({ key: "ext", label: "Exterior", amount: r.exterior });
+  if (h.int) items.push({ key: "int", label: `Interior, ${plural(h.beds, "bedroom")}`, amount: interiorCost(r, h.beds) });
+  if (h.drone) items.push({ key: "drone", label: "Drone", amount: r.drone });
+  if (h.acc) items.push({ key: "acc", label: `Accessories, ${plural(h.accDays, "day")}`, amount: r.accPerDay * h.accDays });
+  return items;
 }
-function isTierTravel(prices){
-  return getTravelType(prices) === "tier";
+
+function travelFor(r, loc) {
+  if (r.travel.type === "band") {
+    const band = bandById(loc.tier);
+    return {
+      amount: band.price,
+      detail: `${band.label} band` + (loc.km > 0 ? `, ${kmFmt.format(loc.km)} km one-way` : ""),
+    };
+  }
+  const amount = round2(loc.km * 2 * r.travel.rate);
+  return {
+    amount,
+    detail: loc.km > 0 ? `2 × ${kmFmt.format(loc.km)} km × ${eur(r.travel.rate)}` : "No distance entered",
+  };
 }
 
-function setPricingHints(){
-  const c = el("country").value;
-  const cfg = PRICING_BY_COUNTRY[c];
-  const prices = cfg?.prices;
+const locName = (loc, n) => loc.name.trim() || `Location ${n}`;
+const homeName = (h, n) => `Home ${n}` + (h.accoId.trim() ? ` · ${h.accoId.trim()}` : "");
 
-  const hint = el("countryHint");
-  const summary = el("pricingSummary");
+function buildQuote() {
+  const r = rates();
+  const multiLoc = state.locations.length > 1;
+  const warnings = [];
+  const locs = state.locations.map((loc, li) => {
+    const n = li + 1;
+    const travel = travelFor(r, loc);
+    const homes = loc.homes.map((h, hi) => {
+      const items = homeItems(r, h);
+      if (!items.length) warnings.push(`${multiLoc ? locName(loc, n) + ", " : ""}Home ${hi + 1}: no services selected.`);
+      return { h, n: hi + 1, items, total: sum(items.map((i) => i.amount)) };
+    });
+    if (!isBand() && loc.km <= 0) warnings.push(`${locName(loc, n)}: enter the distance, travel is € 0 now.`);
+    if (!homes.length) warnings.push(`${locName(loc, n)}: no homes added.`);
+    const total = sum([travel.amount, ...homes.map((h) => h.total)]);
+    return { loc, n, travel, homes, total };
+  });
+  const homeCount = locs.reduce((a, l) => a + l.homes.length, 0);
+  return { r, locs, homeCount, warnings, total: sum(locs.map((l) => l.total)) };
+}
 
-  if (!prices){
-    hint.innerHTML = `<span class="warn">Prices not configured for ${cfg.label} yet.</span>`;
-    summary.innerHTML = `<span class="warn">Pricing for ${cfg.label} is still TBD. Totals will show €0,00 until configured.</span>`;
+/* =========================================================
+   Rendering: builder (structure) — re-rendered on structural changes
+   ========================================================= */
+const builder = $("builder");
+
+function svcRow(h, key, name, desc, sub) {
+  const on = h[key];
+  return `
+    <div class="svc${on ? "" : " off"}">
+      <label class="svc-main">
+        <input type="checkbox" class="svc-check" data-field="${key}" data-key="home:${h.id}:${key}" ${on ? "checked" : ""}>
+        <span class="svc-box">${icon("check")}</span>
+        <span class="svc-text"><span class="svc-name">${name}</span><span class="svc-desc">${desc}</span></span>
+        <span class="svc-price" data-out="price-${key}"></span>
+      </label>
+      ${on && sub ? `<div class="svc-sub">${sub}</div>` : ""}
+    </div>`;
+}
+
+function stepper(h, field, label) {
+  return `
+    <span class="stepper" role="group" aria-label="${label}">
+      <button type="button" data-action="step" data-target="${field}" data-delta="-1" data-key="home:${h.id}:${field}-dec" aria-label="Fewer ${label.toLowerCase()}">${icon("minus")}</button>
+      <input type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" name="${field}" aria-label="${label}" data-field="${field}" data-key="home:${h.id}:${field}" value="${h[field]}">
+      <button type="button" data-action="step" data-target="${field}" data-delta="1" data-key="home:${h.id}:${field}-inc" aria-label="More ${label.toLowerCase()}">${icon("plus")}</button>
+    </span>`;
+}
+
+function homeHTML(h, hi) {
+  const r = rates();
+  const n = hi + 1;
+  const { base, included, extra, cap } = r.interior;
+  return `
+    <article class="home" data-home="${h.id}" aria-labelledby="home-${h.id}-t">
+      <div class="home-head">
+        <h3 class="home-title" id="home-${h.id}-t">Home ${n}</h3>
+        <input class="input mono home-acco" type="text" name="acco-id" autocomplete="off" spellcheck="false"
+          aria-label="Acco ID of home ${n} (optional)" placeholder="Acco ID, e.g. ${state.country}.8813.12…"
+          data-field="accoId" data-key="home:${h.id}:accoId" value="${esc(h.accoId)}">
+        <span class="home-total" data-out="home-total"></span>
+        <div class="home-actions">
+          <button type="button" class="btn btn-ghost btn-icon btn-sm" data-action="dup-home" data-key="home:${h.id}:dup" aria-label="Duplicate home ${n}" title="Duplicate">${icon("copy")}</button>
+          <button type="button" class="btn btn-ghost btn-icon btn-sm danger" data-action="remove-home" data-key="home:${h.id}:remove" aria-label="Remove home ${n}" title="Remove">${icon("trash")}</button>
+        </div>
+      </div>
+      <div class="svcs">
+        ${svcRow(h, "ext", "Exterior", "Flat rate per home")}
+        ${svcRow(h, "int", "Interior",
+          `${eurShort(base)} up to ${included} bedrooms, +${eurShort(extra)} per extra${cap ? ` (max ${cap})` : ""}`,
+          `<span class="field-label" aria-hidden="true">Bedrooms</span>${stepper(h, "beds", "Bedrooms")}<span class="hint" data-out="int-detail"></span>`)}
+        ${svcRow(h, "drone", "Drone", "Aerial photos")}
+        ${svcRow(h, "acc", "Accessories", `${eurShort(r.accPerDay)} per day`,
+          `<span class="field-label" aria-hidden="true">Days</span>${stepper(h, "accDays", "Days")}`)}
+      </div>
+      <p class="home-warn" data-out="home-warn" role="status" hidden>${icon("alert")}<span>Select at least one service for this home.</span></p>
+    </article>`;
+}
+
+function bandHTML(loc) {
+  const options = RATES.AT.travel.bands.map((b) => `
+    <label>
+      <input type="radio" name="band-${loc.id}" value="${b.id}" data-field="tier" data-key="loc:${loc.id}:tier-${b.id}" ${loc.tier === b.id ? "checked" : ""}>
+      <span>${b.label}</span><span class="seg-sub">${eurShort(b.price)}</span>
+    </label>`).join("");
+  return `
+    <fieldset class="band">
+      <legend class="field-label">Travel band <span class="hint">(follows the distance, or pick one)</span></legend>
+      <div class="seg">${options}</div>
+    </fieldset>`;
+}
+
+function locHTML(loc, li) {
+  const n = li + 1;
+  const last = loc.homes[loc.homes.length - 1];
+  const showNotes = loc.notes || notesOpen.has(loc.id);
+  const homes = loc.homes.length
+    ? loc.homes.map((h, hi) => homeHTML(h, hi)).join("")
+    : `<div class="state-box">
+        ${icon("home")}
+        <h3>No homes at this location</h3>
+        <p>Add the homes to be photographed here, or remove the location if you don't need it.</p>
+        <div class="state-actions">
+          <button type="button" class="btn btn-primary btn-sm" data-action="add-home" data-key="loc:${loc.id}:empty-add">${icon("plus")}Add home</button>
+        </div>
+      </div>`;
+
+  return `
+    <section class="panel loc" data-loc="${loc.id}" aria-labelledby="loc-${loc.id}-t">
+      <div class="loc-head">
+        <div class="loc-title">
+          <h2 class="eyebrow" id="loc-${loc.id}-t">Location ${n}</h2>
+          <span class="loc-meta" data-out="loc-meta"></span>
+          <button type="button" class="btn btn-ghost btn-icon btn-sm danger" data-action="remove-loc" data-key="loc:${loc.id}:remove" aria-label="Remove location ${n}" title="Remove location">${icon("trash")}</button>
+        </div>
+        <div class="loc-fields">
+          <div class="field">
+            <label for="loc-${loc.id}-name">Name or address <span class="hint">(optional)</span></label>
+            <input class="input" id="loc-${loc.id}-name" type="text" name="location-name" autocomplete="off"
+              placeholder="e.g. Ferienpark Kirchberg…" data-field="name" data-key="loc:${loc.id}:name" value="${esc(loc.name)}">
+          </div>
+          <div class="field">
+            <label for="loc-${loc.id}-km">Distance</label>
+            <div class="affix">
+              <input class="input num" id="loc-${loc.id}-km" type="text" inputmode="decimal" name="distance-km" autocomplete="off"
+                placeholder="0" aria-describedby="loc-${loc.id}-travel" data-field="km" data-key="loc:${loc.id}:km"
+                value="${loc.km ? String(loc.km).replace(".", ",") : ""}">
+              <span class="affix-suffix" aria-hidden="true">km</span>
+            </div>
+          </div>
+        </div>
+        ${isBand() ? bandHTML(loc) : ""}
+        <p class="travel-line" id="loc-${loc.id}-travel" data-out="travel"></p>
+      </div>
+      <div class="homes">${homes}</div>
+      <div class="loc-foot">
+        <div class="loc-foot-row">
+          ${loc.homes.length ? `<button type="button" class="btn btn-secondary btn-sm" data-action="add-home" data-key="loc:${loc.id}:add-home">${icon("plus")}Add home</button>
+          <span class="hint">Copies the services of Home ${loc.homes.length}</span>` : ""}
+          <span class="spacer"></span>
+          ${showNotes ? "" : `<button type="button" class="btn btn-ghost btn-sm" data-action="open-notes" data-key="loc:${loc.id}:open-notes">${icon("note")}Add note</button>`}
+        </div>
+        ${showNotes ? `
+          <div class="field">
+            <label for="loc-${loc.id}-notes">Note for this location</label>
+            <textarea class="input" id="loc-${loc.id}-notes" name="location-notes" rows="2"
+              placeholder="e.g. Keys at reception, shoot exteriors in the morning…" data-field="notes" data-key="loc:${loc.id}:notes">${esc(loc.notes)}</textarea>
+          </div>` : ""}
+      </div>
+    </section>`;
+}
+
+function renderCountry() {
+  const seg = $("countrySeg");
+  if (!seg.children.length) {
+    seg.innerHTML = COUNTRIES.map((c) => `
+      <label>
+        <input type="radio" name="country" value="${c}">
+        <span>${RATES[c].label}</span><span class="seg-sub">${c}</span>
+      </label>`).join("");
+  }
+  seg.querySelectorAll("input").forEach((i) => { i.checked = i.value === state.country; });
+  const r = rates();
+  const { base, included, extra, cap } = r.interior;
+  $("ratesSummary").textContent = `2026 rates for ${r.label}`;
+  $("ratesList").innerHTML = `
+    <dt>Exterior</dt><dd>${eurShort(r.exterior)} per home</dd>
+    <dt>Interior</dt><dd>${eurShort(base)} up to ${included} bedrooms</dd>
+    <dt>Extra bedroom</dt><dd>+${eurShort(extra)} each${cap ? `, charged up to ${cap} bedrooms` : ""}</dd>
+    <dt>Drone</dt><dd>+${eurShort(r.drone)} per home</dd>
+    <dt>Accessories</dt><dd>+${eurShort(r.accPerDay)} per day</dd>
+    <dt>Travel</dt><dd>${r.travel.type === "band"
+      ? r.travel.bands.map((b) => `${b.label}: ${eurShort(b.price)}`).join(" · ") + ", by one-way distance"
+      : `${eur(r.travel.rate)} per km, round trip from the photographer's base (Google Maps)`}. Charged once per location.</dd>`;
+}
+
+function renderBuilder(focusKey) {
+  const active = document.activeElement;
+  const activeKey = active && active.dataset ? active.dataset.key : null;
+  const sel = active && typeof active.selectionStart === "number" ? [active.selectionStart, active.selectionEnd] : null;
+
+  builder.innerHTML = state.locations.length
+    ? state.locations.map(locHTML).join("") + `
+      <div class="add-loc">
+        <button type="button" class="btn btn-secondary" data-action="add-loc" data-key="add-loc">${icon("pin")}Add another location</button>
+        <span class="hint">For homes at a different address. Travel is charged once per location.</span>
+      </div>`
+    : `<div class="state-box">
+        ${icon("pin")}
+        <h2>No locations yet</h2>
+        <p>Add a location to start pricing a photo shoot.</p>
+        <div class="state-actions"><button type="button" class="btn btn-primary btn-sm" data-action="add-loc" data-key="add-loc">${icon("plus")}Add location</button></div>
+      </div>`;
+
+  const key = focusKey || activeKey;
+  if (!key) return;
+  const target = builder.querySelector(`[data-key="${CSS.escape(key)}"]`);
+  if (!target) return;
+  target.focus({ preventScroll: !focusKey });
+  if (!focusKey && sel && typeof target.setSelectionRange === "function") {
+    try { target.setSelectionRange(sel[0], sel[1]); } catch (e) {}
+  }
+}
+
+/* =========================================================
+   Rendering: derived values (prices, totals, summary)
+   ========================================================= */
+let liveTimer;
+
+function renderDerived() {
+  const q = buildQuote();
+  const r = q.r;
+
+  q.locs.forEach((L) => {
+    const sec = builder.querySelector(`[data-loc="${L.loc.id}"]`);
+    if (!sec) return;
+    sec.querySelector('[data-out="loc-meta"]').textContent = `${plural(L.homes.length, "home")} · ${eur(L.total)}`;
+
+    let travel;
+    if (r.travel.type === "band") {
+      const auto = bandFor(L.loc.km);
+      travel = `<strong>${eur(L.travel.amount)}</strong> travel, charged once for this location.`;
+      if (L.loc.km > 0 && auto.id !== L.loc.tier) travel += ` Picked by hand: ${kmFmt.format(L.loc.km)} km falls in the ${auto.label} band.`;
+      sec.querySelectorAll('input[data-field="tier"]').forEach((i) => { i.checked = i.value === L.loc.tier; });
+    } else if (L.loc.km > 0) {
+      travel = `${L.travel.detail} = <strong>${eur(L.travel.amount)}</strong> travel, charged once for this location.`;
+    } else {
+      travel = `<span class="attn">${icon("alert")}Enter the one-way distance from the photographer's base (Google Maps). Travel is charged round trip at ${eur(r.travel.rate)}/km.</span>`;
+    }
+    sec.querySelector('[data-out="travel"]').innerHTML = travel;
+
+    L.homes.forEach((H) => {
+      const art = sec.querySelector(`[data-home="${H.h.id}"]`);
+      if (!art) return;
+      const h = H.h;
+      art.querySelector('[data-out="home-total"]').textContent = eur(H.total);
+      art.querySelector('[data-out="home-warn"]').hidden = H.items.length > 0;
+      const price = (key, onAmount, offText) => {
+        art.querySelector(`[data-out="price-${key}"]`).textContent = h[key] ? eur(onAmount) : offText;
+      };
+      price("ext", r.exterior, eurShort(r.exterior));
+      price("int", interiorCost(r, h.beds), `from ${eurShort(r.interior.base)}`);
+      price("drone", r.drone, `+${eurShort(r.drone)}`);
+      price("acc", r.accPerDay * h.accDays, `${eurShort(r.accPerDay)}/day`);
+      const det = art.querySelector('[data-out="int-detail"]');
+      if (det) det.textContent = interiorDetail(r, h.beds);
+    });
+  });
+
+  renderSummary(q);
+
+  $("mbarTotal").textContent = eur(q.total);
+  clearTimeout(liveTimer);
+  liveTimer = setTimeout(() => { $("live").textContent = `Total ${eur(q.total)}`; }, 800);
+}
+
+function renderSummary(q) {
+  $("sumTotal").textContent = eur(q.total);
+  $("sumScope").textContent = `${plural(q.homeCount, "home")} · ${plural(q.locs.length, "location")} · ${q.r.label}`;
+
+  const warnings = q.warnings.length
+    ? `<ul class="warnings">${q.warnings.map((w) => `<li>${icon("alert")}<span>${esc(w)}</span></li>`).join("")}</ul>`
+    : "";
+
+  if (!q.locs.length) {
+    $("sumBody").innerHTML = `<p class="sum-empty">Nothing to price yet. Add a location to start.</p>`;
     return;
   }
 
-  hint.textContent = `${cfg.label} pricing loaded.`;
+  const groups = q.locs.map((L) => `
+    <div class="sum-group">
+      ${q.locs.length > 1 || L.loc.name.trim() ? `
+        <div class="sum-group-h">
+          <div class="sum-group-name"><span class="eyebrow">Location ${L.n}</span>${esc(L.loc.name.trim())}</div>
+        </div>` : ""}
+      <div class="line"><span class="line-l">Travel<small>${esc(L.travel.detail)}</small></span><span class="line-a">${eur(L.travel.amount)}</span></div>
+      ${L.homes.map((H) => `
+        <div class="line">
+          <span class="line-l">Home ${H.n}${H.h.accoId.trim() ? ` · <code>${esc(H.h.accoId.trim())}</code>` : ""}
+            <small>${H.items.length ? H.items.map((i) => esc(i.label)).join(" · ") : "No services selected"}</small></span>
+          <span class="line-a">${eur(H.total)}</span>
+        </div>`).join("")}
+      ${q.locs.length > 1 ? `<div class="line is-sub"><span class="line-l">Subtotal</span><span class="line-a">${eur(L.total)}</span></div>` : ""}
+    </div>`).join("");
 
-  const inc = prices.interior?.included_bedrooms ?? 2;
-  const base = prices.interior?.base ?? 0;
-  const extra = prices.interior?.extra_bedroom ?? 0;
+  $("sumBody").innerHTML = warnings + groups;
+}
 
-  let s =
-    `${cfg.label}: Exterior €${prices.exterior} • Interior €${base} (up to ${inc} bedrooms) • Each additional bedroom +€${extra} • Drone +€${prices.drone} • Accessories +€${prices.accessories_per_day}/day • Travel charged once per location.`;
+function commit(focusKey) {
+  renderBuilder(focusKey);
+  renderDerived();
+  syncUrl();
+}
 
-  if (getTravelType(prices) === "per_km_roundtrip"){
-    s += ` Travel: €${prices.travel.rate_per_km}/km (round trip).`;
-    s += ` Interior cap: +bedroom fee applies up to 8 bedrooms (except AT).`;
+/* =========================================================
+   Builder events
+   ========================================================= */
+function ctx(el) {
+  const locEl = el.closest("[data-loc]");
+  const homeEl = el.closest("[data-home]");
+  const li = locEl ? state.locations.findIndex((l) => l.id === locEl.dataset.loc) : -1;
+  const loc = li >= 0 ? state.locations[li] : null;
+  const hi = loc && homeEl ? loc.homes.findIndex((h) => h.id === homeEl.dataset.home) : -1;
+  return { loc, li, home: hi >= 0 ? loc.homes[hi] : null, hi };
+}
+
+builder.addEventListener("input", (e) => {
+  const t = e.target;
+  const f = t.dataset.field;
+  if (!f || t.type === "checkbox" || t.type === "radio") return;
+  const { loc, home } = ctx(t);
+  if (f === "name") loc.name = t.value;
+  else if (f === "notes") loc.notes = t.value;
+  else if (f === "km") {
+    loc.km = parseKm(t.value);
+    loc.tier = bandFor(loc.km).id;
+  } else if (f === "accoId") home.accoId = t.value;
+  else if (f === "beds" || f === "accDays") home[f] = parseCount(t.value, home[f]);
+  renderDerived();
+  syncUrl();
+});
+
+builder.addEventListener("change", (e) => {
+  const t = e.target;
+  const f = t.dataset.field;
+  if (!f) return;
+  const { loc, home } = ctx(t);
+  if (t.type === "checkbox") {
+    home[f] = t.checked;
+    commit();
+  } else if (f === "tier") {
+    loc.tier = t.value;
+    commit();
+  } else if (f === "beds" || f === "accDays") {
+    t.value = home[f]; // normalise what was typed (e.g. empty or 0)
   }
+});
 
-  summary.textContent = s;
-}
-
-/* =========================================================
-   Travel UI toggles per country
-   ========================================================= */
-function updateTravelUI(){
-  const prices = getPricing();
-  const tierUi = isTierTravel(prices);
-
-  // Single
-  el("sTravelTierRow").style.display = tierUi ? "grid" : "none";
-  el("sTravelInfo").innerHTML = tierUi
-    ? `Travel is charged <strong>once per location</strong>.`
-    : `Travel is charged <strong>once per location</strong> • €${prices?.travel?.rate_per_km ?? 0}/km <strong>(round trip)</strong>.`;
-
-  // Multi-same
-  el("msTravelTierRow").style.display = tierUi ? "grid" : "none";
-  el("msTravelInfo").innerHTML = tierUi
-    ? `Travel is charged <strong>once</strong> for this location (regardless of number of homes).`
-    : `Travel is charged <strong>once</strong> for this location (regardless of number of homes) • €${prices?.travel?.rate_per_km ?? 0}/km <strong>(round trip)</strong>.`;
-}
-
-/* =========================================================
-   Mode state
-   ========================================================= */
-let mode = "single";
-
-/* =========================================================
-   UI: mode switching
-   ========================================================= */
-const modeBtns = document.querySelectorAll("#modeBar .pill");
-modeBtns.forEach(b => b.addEventListener("click", () => {
-  modeBtns.forEach(x => x.classList.remove("active"));
-  b.classList.add("active");
-  mode = b.dataset.mode;
-
-  el("singlePanel").style.display     = (mode==="single") ? "block" : "none";
-  el("multiSamePanel").style.display  = (mode==="multi_same") ? "block" : "none";
-  el("multiLocPanel").style.display   = (mode==="multi_locations") ? "block" : "none";
-
-  recalc();
-}));
-
-/* =========================================================
-   Travel tier sync helper (for tier-based travel only)
-   ========================================================= */
-function syncTravelTier(panelPrefix){
-  const prices = getPricing();
-  if (!isTierTravel(prices)) return null;
-
-  const kmEl = el(panelPrefix + "_km");
-  const overrideEl = el(panelPrefix + "_tierOverride");
-  const selectEl = el(panelPrefix + "_tierSelect");
-  const badgeEl = el(panelPrefix + "_tierBadge");
-
-  const km = safeNum(kmEl?.value || 0);
-  const override = !!overrideEl?.checked;
-
-  if (selectEl) selectEl.disabled = !override;
-
-  const tier = override ? (selectEl?.value || "0_50") : travelTierFromKm(km);
-  if (selectEl && !override) selectEl.value = tier;
-  if (badgeEl) badgeEl.textContent = travelTierLabel(tier);
-
-  return tier;
-}
-
-/* =========================================================
-   Pricing calculations (country-aware)
-   RULE:
-   - AT: extra bedroom continues infinitely (+10)
-   - NL/DE/FR/BE: extra bedroom applies only up to 8 bedrooms (cap)
-   ========================================================= */
-function effectiveBedroomsForPricing(prices, bedroomsRaw){
-  const ctry = prices?._country;
-  const beds = Math.max(0, safeNum(bedroomsRaw));
-  if (ctry === "AT") return beds;
-  return Math.min(beds, 8);
-}
-
-function calcInterior(prices, bedrooms){
-  if (!prices) return 0;
-  const bedsRaw = Math.max(0, safeNum(bedrooms));
-  if (bedsRaw <= 0) return 0;
-
-  const beds = effectiveBedroomsForPricing(prices, bedsRaw);
-
-  const inc = prices.interior?.included_bedrooms ?? 2;
-  const base = prices.interior?.base ?? 0;
-  const extra = prices.interior?.extra_bedroom ?? 0;
-
-  if (beds <= inc) return base;
-  return base + (beds - inc) * extra;
-}
-
-function calcHomeTotal(prices, {ext,int,beds,drone,acc,accDays}){
-  if (!prices) return 0;
-  let t = 0;
-  if (ext) t += prices.exterior;
-  if (int) t += calcInterior(prices, beds);
-  if (drone) t += prices.drone;
-  if (acc) t += prices.accessories_per_day * clampInt(accDays, 1);
-  return t;
-}
-
-/* =========================================================
-   Travel cost (tier vs per-km round trip)
-   ========================================================= */
-function calcTravelCost(prices, { kmOneWay, tier }){
-  if (!prices) return 0;
-  const t = prices.travel;
-
-  if (t?.type === "tier"){
-    const key = tier || travelTierFromKm(kmOneWay);
-    return t.tiers?.[key] || 0;
-  }
-
-  if (t?.type === "per_km_roundtrip"){
-    const km = safeNum(kmOneWay);
-    return km * 2 * (t.rate_per_km || 0);
-  }
-
-  return 0;
-}
-function travelLabel(prices, { kmOneWay, tier }){
-  if (!prices) return "Travel";
-  if (prices.travel?.type === "per_km_roundtrip"){
-    return `Travel (round trip • €${prices.travel.rate_per_km}/km • one-way ${kmOneWay} km)`;
-  }
-  const key = tier || travelTierFromKm(kmOneWay);
-  return `Travel (${travelTierLabel(key)} • one-way ${kmOneWay} km)`;
-}
-
-/* =========================================================
-   Single wiring
-   ========================================================= */
-function syncSingleUI(){
-  el("sBedsRow").style.display = el("sInt").checked ? "grid" : "none";
-  el("sAccDaysRow").style.display = el("sAcc").checked ? "grid" : "none";
-}
-[
-  "sExt","sInt","sDrone","sAcc","sBeds","sAccDays",
-  "s_locationName","s_km","s_tierOverride","s_tierSelect","s_accoId","s_notes"
-].forEach(id => el(id).addEventListener("input", () => {
-  syncSingleUI();
-  syncTravelTier("s");
-  recalc();
-}));
-
-/* =========================================================
-   Multi same wiring
-   ========================================================= */
-["ms_locationName","ms_km","ms_tierOverride","ms_tierSelect","ms_notes","ms_homeCount"]
-  .forEach(id => el(id).addEventListener("input", () => { syncTravelTier("ms"); recalc(); }));
-
-function buildMultiSameHomes(presetHomes){
-  const count = presetHomes ? presetHomes.length : clampInt(el("ms_homeCount").value, 1);
-  const container = el("ms_homesList");
-  container.innerHTML = "";
-
-  for (let i=1; i<=count; i++){
-    const wrap = document.createElement("div");
-    wrap.className = "locCard homeCard";
-    wrap.innerHTML = `
-      <div class="locHeader">
-        <div class="locTitle">Home ${i}</div>
-        <div class="muted" style="font-size:12px">Same location • travel charged once</div>
-      </div>
-
-      <div class="row" style="margin-top:10px">
-        <label>Acco ID (optional)</label>
-        <input type="text" placeholder="e.g., AT.12345.0${i}" data-home="${i}" data-k="accoId" />
-      </div>
-
-      <div class="chips" style="margin-top:8px">
-        <label class="chip"><input type="checkbox" data-home="${i}" data-k="ext" checked /> Exterior</label>
-        <label class="chip"><input type="checkbox" data-home="${i}" data-k="int" checked /> Interior</label>
-        <label class="chip"><input type="checkbox" data-home="${i}" data-k="drone" /> Drone</label>
-        <label class="chip"><input type="checkbox" data-home="${i}" data-k="acc" /> Accessories</label>
-      </div>
-
-      <div class="row" data-row="beds" data-home="${i}">
-        <label>Bedrooms (for Interior)</label>
-        <input type="number" min="0" value="2" data-home="${i}" data-k="beds" />
-      </div>
-
-      <div class="row" data-row="accDays" data-home="${i}" style="display:none">
-        <label>Accessories days</label>
-        <input type="number" min="1" value="1" data-home="${i}" data-k="accDays" />
-      </div>
-    `;
-    container.appendChild(wrap);
-  }
-
-  if (presetHomes){
-    presetHomes.forEach((h, idx) => {
-      const i = String(idx+1);
-      const set = (k, v) => {
-        const node = container.querySelector(`[data-home="${i}"][data-k="${k}"]`);
-        if (!node) return;
-        if (node.type === "checkbox") node.checked = !!v;
-        else node.value = v ?? node.value;
-      };
-      set("accoId", h.accoId);
-      set("ext", h.ext);
-      set("int", h.int);
-      set("drone", h.drone);
-      set("acc", h.acc);
-      set("beds", h.beds);
-      set("accDays", h.accDays);
-    });
-  }
-
-  container.querySelectorAll("input").forEach(inp => {
-    inp.addEventListener("input", () => { syncMultiSameRowVisibility(); recalc(); });
-  });
-
-  syncMultiSameRowVisibility();
-  recalc();
-}
-function syncMultiSameRowVisibility(){
-  const container = el("ms_homesList");
-  const indices = new Set();
-  container.querySelectorAll('input[data-home]').forEach(inp => indices.add(inp.dataset.home));
-
-  indices.forEach(h => {
-    const hasInt = container.querySelector(`input[data-home="${h}"][data-k="int"]`)?.checked;
-    const bedsRow = container.querySelector(`.row[data-row="beds"][data-home="${h}"]`);
-    if (bedsRow) bedsRow.style.display = hasInt ? "grid" : "none";
-
-    const hasAcc = container.querySelector(`input[data-home="${h}"][data-k="acc"]`)?.checked;
-    const accRow = container.querySelector(`.row[data-row="accDays"][data-home="${h}"]`);
-    if (accRow) accRow.style.display = hasAcc ? "grid" : "none";
-  });
-}
-el("ms_buildHomesBtn").addEventListener("click", () => buildMultiSameHomes());
-
-/* =========================================================
-   Multi locations builder (FIXED)
-   ========================================================= */
-function buildMultiLocations(state){
-  const locCount = state?.locCount ?? clampInt(el("ml_locCount").value, 1);
-  const container = el("ml_locations");
-  container.innerHTML = "";
-
-  const prices = getPricing();
-  const tierUi = isTierTravel(prices);
-  const travelRowStyle = tierUi ? "" : "display:none";
-
-  for (let l=1; l<=locCount; l++){
-    const loc = document.createElement("div");
-    loc.className = "locCard locationCard";
-
-    loc.innerHTML = `
-      <div class="locHeader">
-        <div class="locTitle">Location ${l}</div>
-        <div class="inline">
-          <button type="button" class="ghost" data-loc="${l}" data-k="duplicate">Duplicate</button>
-        </div>
-      </div>
-
-      <div class="row" style="margin-top:10px">
-        <label>Location name</label>
-        <input type="text" placeholder="e.g., Kirchberg Haus" data-loc="${l}" data-k="locName" />
-      </div>
-
-      <div class="row">
-        <label>One-way distance (km)</label>
-        <input type="number" min="0" value="0" data-loc="${l}" data-k="km" style="max-width:160px" />
-      </div>
-
-      <div class="row" style="${travelRowStyle}">
-        <label>Travel tier <span class="badge" id="ml_badge_${l}">0–50 km</span></label>
-        <div class="inline" style="min-width:280px">
-          <label class="chip" style="margin:0">
-            <input type="checkbox" data-loc="${l}" data-k="override" />
-            Override
-          </label>
-          <select data-loc="${l}" data-k="tier" disabled style="max-width:180px">
-            <option value="0_50">0–50 km</option>
-            <option value="51_100">51–100 km</option>
-            <option value="100_plus">100+ km</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="row">
-        <label>Number of homes</label>
-        <div class="inline">
-          <input type="number" min="1" value="2" data-loc="${l}" data-k="homeCount" style="max-width:110px" />
-          <button type="button" data-loc="${l}" data-k="buildHomes">Build homes</button>
-        </div>
-      </div>
-
-      <div id="ml_homes_${l}"></div>
-
-      <div class="row">
-        <label>Notes (optional)</label>
-        <input type="text" placeholder="e.g., access instructions, timing…" data-loc="${l}" data-k="notes" />
-      </div>
-    `;
-
-    container.appendChild(loc);
-  }
-
-  // restore state
-  if (state?.locations){
-    state.locations.forEach((loc, idx) => {
-      const l = String(idx+1);
-      const setVal = (k, v) => {
-        const node = container.querySelector(`[data-loc="${l}"][data-k="${k}"]`);
-        if (!node) return;
-        if (node.type === "checkbox") node.checked = !!v;
-        else node.value = v ?? node.value;
-      };
-      setVal("locName", loc.locName);
-      setVal("km", loc.km);
-      setVal("override", loc.override);
-      setVal("tier", loc.tier);
-      setVal("homeCount", loc.homeCount);
-      setVal("notes", loc.notes);
-
-      syncMultiLocTier(l);
-      if (loc.homes && loc.homes.length){
-        buildMultiLocHomes(l, loc.homes);
-      }
-    });
-  }
-
-  // wire events
-  container.querySelectorAll("input,select,button").forEach(node => {
-    const locId = node.dataset.loc;
-    const key = node.dataset.k;
-
-    if (node.tagName === "BUTTON" && key === "buildHomes"){
-      node.addEventListener("click", () => buildMultiLocHomes(locId));
-    } else if (node.tagName === "BUTTON" && key === "duplicate"){
-      node.addEventListener("click", () => duplicateLocation(locId));
-    } else {
-      node.addEventListener("input", () => { syncMultiLocTier(locId); recalc(); });
+builder.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-action]");
+  if (!b) return;
+  const { loc, li, home, hi } = ctx(b);
+  switch (b.dataset.action) {
+    case "add-home": {
+      const prev = loc.homes[loc.homes.length - 1];
+      const h = prev ? { ...prev, id: uid(), accoId: "" } : newHome();
+      loc.homes.push(h);
+      commit(`home:${h.id}:accoId`);
+      break;
     }
-  });
-
-  for (let l=1; l<=locCount; l++) syncMultiLocTier(String(l));
-  recalc();
-}
-
-function syncMultiLocTier(locId){
-  const prices = getPricing();
-  if (!isTierTravel(prices)) return null;
-
-  const container = el("ml_locations");
-  const km = safeNum(container.querySelector(`input[data-loc="${locId}"][data-k="km"]`)?.value || 0);
-  const override = !!container.querySelector(`input[data-loc="${locId}"][data-k="override"]`)?.checked;
-  const tierSel = container.querySelector(`select[data-loc="${locId}"][data-k="tier"]`);
-  const badge = el(`ml_badge_${locId}`);
-
-  if (!tierSel) return "0_50";
-  tierSel.disabled = !override;
-
-  const tier = override ? tierSel.value : travelTierFromKm(km);
-  if (!override) tierSel.value = tier;
-  if (badge) badge.textContent = travelTierLabel(tier);
-  return tier;
-}
-
-function buildMultiLocHomes(locId, presetHomes){
-  const container = el("ml_locations");
-  const count = presetHomes ? presetHomes.length : clampInt(container.querySelector(`input[data-loc="${locId}"][data-k="homeCount"]`)?.value, 1);
-  const homesWrap = el(`ml_homes_${locId}`);
-  homesWrap.innerHTML = "";
-
-  for (let i=1; i<=count; i++){
-    const home = document.createElement("div");
-    home.className = "locCard homeCard";
-
-    home.innerHTML = `
-      <div class="locHeader">
-        <div class="locTitle">Home ${i}</div>
-        <div class="muted" style="font-size:12px">Location ${locId}</div>
-      </div>
-
-      <div class="row" style="margin-top:10px">
-        <label>Acco ID (optional)</label>
-        <input type="text" placeholder="e.g., AT.12345.${String(i).padStart(2,'0')}" data-loc="${locId}" data-home="${i}" data-k="accoId" />
-      </div>
-
-      <div class="chips" style="margin-top:8px">
-        <label class="chip"><input type="checkbox" data-loc="${locId}" data-home="${i}" data-k="ext" checked /> Exterior</label>
-        <label class="chip"><input type="checkbox" data-loc="${locId}" data-home="${i}" data-k="int" checked /> Interior</label>
-        <label class="chip"><input type="checkbox" data-loc="${locId}" data-home="${i}" data-k="drone" /> Drone</label>
-        <label class="chip"><input type="checkbox" data-loc="${locId}" data-home="${i}" data-k="acc" /> Accessories</label>
-      </div>
-
-      <div class="row" data-row="beds" data-loc="${locId}" data-home="${i}">
-        <label>Bedrooms (for Interior)</label>
-        <input type="number" min="0" value="2" data-loc="${locId}" data-home="${i}" data-k="beds" />
-      </div>
-
-      <div class="row" data-row="accDays" data-loc="${locId}" data-home="${i}" style="display:none">
-        <label>Accessories days</label>
-        <input type="number" min="1" value="1" data-loc="${locId}" data-home="${i}" data-k="accDays" />
-      </div>
-    `;
-    homesWrap.appendChild(home);
-  }
-
-  if (presetHomes){
-    presetHomes.forEach((h, idx) => {
-      const i = String(idx+1);
-      const set = (k, v) => {
-        const node = homesWrap.querySelector(`[data-loc="${locId}"][data-home="${i}"][data-k="${k}"]`);
-        if (!node) return;
-        if (node.type === "checkbox") node.checked = !!v;
-        else node.value = v ?? node.value;
-      };
-      set("accoId", h.accoId);
-      set("ext", h.ext);
-      set("int", h.int);
-      set("drone", h.drone);
-      set("acc", h.acc);
-      set("beds", h.beds);
-      set("accDays", h.accDays);
-    });
-  }
-
-  homesWrap.querySelectorAll("input").forEach(inp => {
-    inp.addEventListener("input", () => { syncMultiLocHomeVisibility(locId); recalc(); });
-  });
-
-  syncMultiLocHomeVisibility(locId);
-  recalc();
-}
-
-function syncMultiLocHomeVisibility(locId){
-  const homesWrap = el(`ml_homes_${locId}`);
-  if (!homesWrap) return;
-
-  const homeIds = new Set();
-  homesWrap.querySelectorAll('input[data-home]').forEach(inp => homeIds.add(inp.dataset.home));
-
-  homeIds.forEach(h => {
-    const hasInt = homesWrap.querySelector(`input[data-loc="${locId}"][data-home="${h}"][data-k="int"]`)?.checked;
-    const bedsRow = homesWrap.querySelector(`.row[data-row="beds"][data-loc="${locId}"][data-home="${h}"]`);
-    if (bedsRow) bedsRow.style.display = hasInt ? "grid" : "none";
-
-    const hasAcc = homesWrap.querySelector(`input[data-loc="${locId}"][data-home="${h}"][data-k="acc"]`)?.checked;
-    const accRow = homesWrap.querySelector(`.row[data-row="accDays"][data-loc="${locId}"][data-home="${h}"]`);
-    if (accRow) accRow.style.display = hasAcc ? "grid" : "none";
-  });
-}
-
-function snapshotMultiLocations(){
-  const container = el("ml_locations");
-  const locCards = container.querySelectorAll(":scope > .locationCard");
-
-  const locations = [];
-  locCards.forEach(card => {
-    const any = card.querySelector("[data-loc]");
-    if (!any) return;
-    const locId = any.dataset.loc;
-
-    const get = (k) => container.querySelector(`[data-loc="${locId}"][data-k="${k}"]`);
-    const locName = get("locName")?.value || "";
-    const km = safeNum(get("km")?.value || 0);
-
-    const prices = getPricing();
-    const tierUi = isTierTravel(prices);
-
-    const override = tierUi ? !!get("override")?.checked : false;
-    const tier = tierUi ? (get("tier")?.value || travelTierFromKm(km)) : null;
-
-    const homeCount = clampInt(get("homeCount")?.value || 1, 1);
-    const notes = get("notes")?.value || "";
-
-    const homesWrap = el(`ml_homes_${locId}`);
-    const homes = [];
-    if (homesWrap && homesWrap.querySelector('input[data-home]')){
-      const homeIds = new Set();
-      homesWrap.querySelectorAll('input[data-home]').forEach(inp => homeIds.add(inp.dataset.home));
-      homeIds.forEach(h => {
-        const q = (k) => homesWrap.querySelector(`[data-loc="${locId}"][data-home="${h}"][data-k="${k}"]`);
-        homes.push({
-          accoId: q("accoId")?.value || "",
-          ext: !!q("ext")?.checked,
-          int: !!q("int")?.checked,
-          drone: !!q("drone")?.checked,
-          acc: !!q("acc")?.checked,
-          beds: safeNum(q("beds")?.value || 0),
-          accDays: safeNum(q("accDays")?.value || 1),
-        });
-      });
+    case "dup-home": {
+      const h = { ...home, id: uid(), accoId: "" };
+      loc.homes.splice(hi + 1, 0, h);
+      commit(`home:${h.id}:accoId`);
+      toast(`Home ${hi + 1} duplicated as Home ${hi + 2}`);
+      break;
     }
-
-    locations.push({ locName, km, override, tier, homeCount, notes, homes });
-  });
-
-  return { locCount: locations.length, locations };
-}
-
-function duplicateLocation(sourceLocId){
-  const state = snapshotMultiLocations();
-  if (!state.locations.length) return;
-
-  const srcIndex = Number(sourceLocId) - 1;
-  const src = state.locations[srcIndex];
-  if (!src) return;
-
-  const clone = JSON.parse(JSON.stringify(src));
-  clone.homes = (clone.homes || []).map(h => ({...h, accoId: ""}));
-
-  state.locations.push(clone);
-  state.locCount = state.locations.length;
-
-  el("ml_locCount").value = state.locCount;
-  buildMultiLocations(state);
-}
-
-el("ml_buildLocBtn").addEventListener("click", () => buildMultiLocations());
-el("ml_locCount").addEventListener("input", recalc);
-
-/* =========================================================
-   Validation hint
-   ========================================================= */
-function validateAndHint(messages){
-  const box = el("validationHint");
-  if (!messages.length){ box.style.display="none"; box.innerHTML=""; return; }
-  box.style.display="block";
-  box.innerHTML = `<div class="warn"><strong>Check:</strong> ${messages.join(" • ")}</div>`;
-}
-
-/* =========================================================
-   Presets
-   ========================================================= */
-function applyPreset(name){
-  if (name === "single_standard"){
-    el("sExt").checked = true;
-    el("sInt").checked = true;
-    el("sBeds").value = 2;
-    el("sDrone").checked = false;
-    el("sAcc").checked = false;
-    el("sAccDays").value = 1;
+    case "remove-home":
+      withUndo(`Home ${hi + 1} removed`, () => loc.homes.splice(hi, 1), loc.homes.length > 1 ? `loc:${loc.id}:add-home` : `loc:${loc.id}:empty-add`);
+      break;
+    case "remove-loc":
+      withUndo(`${locName(loc, li + 1)} removed`, () => state.locations.splice(li, 1), "add-loc");
+      break;
+    case "add-loc": {
+      const l = newLocation();
+      state.locations.push(l);
+      commit(`loc:${l.id}:name`);
+      break;
+    }
+    case "step": {
+      const field = b.dataset.target;
+      home[field] = Math.min(Math.max(home[field] + Number(b.dataset.delta), 1), 99);
+      commit();
+      break;
+    }
+    case "open-notes":
+      notesOpen.add(loc.id);
+      commit(`loc:${loc.id}:notes`);
+      break;
   }
-  if (name === "single_exterior"){
-    el("sExt").checked = true;
-    el("sInt").checked = false;
-    el("sDrone").checked = false;
-    el("sAcc").checked = false;
-    el("sBeds").value = 0;
-  }
-  if (name === "single_family"){
-    el("sExt").checked = true;
-    el("sInt").checked = true;
-    el("sBeds").value = 4;
-    el("sDrone").checked = false;
-    el("sAcc").checked = false;
-  }
-  if (name === "single_drone"){
-    el("sDrone").checked = true;
-  }
+});
 
-  if (name === "ms_parkday"){
-    el("ms_homeCount").value = 3;
-    buildMultiSameHomes();
-    document.querySelectorAll('#ms_homesList input[data-k="ext"]').forEach(i=>i.checked=true);
-    document.querySelectorAll('#ms_homesList input[data-k="int"]').forEach(i=>i.checked=true);
-    document.querySelectorAll('#ms_homesList input[data-k="beds"]').forEach(i=>i.value=2);
-    document.querySelectorAll('#ms_homesList input[data-k="drone"]').forEach(i=>i.checked=false);
-    document.querySelectorAll('#ms_homesList input[data-k="acc"]').forEach(i=>i.checked=false);
-    syncMultiSameRowVisibility();
-  }
-  if (name === "ms_standard_all"){
-    if (!el("ms_homesList").querySelector('input[data-home]')) buildMultiSameHomes();
-    document.querySelectorAll('#ms_homesList input[data-k="ext"]').forEach(i=>i.checked=true);
-    document.querySelectorAll('#ms_homesList input[data-k="int"]').forEach(i=>i.checked=true);
-    document.querySelectorAll('#ms_homesList input[data-k="beds"]').forEach(i=>i.value=2);
-    document.querySelectorAll('#ms_homesList input[data-k="drone"]').forEach(i=>i.checked=false);
-    document.querySelectorAll('#ms_homesList input[data-k="acc"]').forEach(i=>i.checked=false);
-    syncMultiSameRowVisibility();
-  }
-  if (name === "ms_add_drone_all"){
-    if (!el("ms_homesList").querySelector('input[data-home]')) buildMultiSameHomes();
-    document.querySelectorAll('#ms_homesList input[data-k="drone"]').forEach(i=>i.checked=true);
-  }
-
-  syncSingleUI();
-  syncTravelTier("s");
-  syncTravelTier("ms");
-  recalc();
-}
-document.querySelectorAll("[data-preset]").forEach(btn => {
-  btn.addEventListener("click", () => applyPreset(btn.dataset.preset));
+$("countrySeg").addEventListener("change", (e) => {
+  if (e.target.name !== "country") return;
+  state.country = e.target.value;
+  try { localStorage.setItem("vfy-calc-country", state.country); } catch (err) {}
+  renderCountry();
+  commit();
 });
 
 /* =========================================================
-   Core calc
+   Undo + toasts
    ========================================================= */
-function recalc(){
-  const prices = getPricing();
-  const rows = [];
-  let total = 0;
-  const messages = [];
-  let scopeText = "—";
-
-  const ctry = el("country").value;
-  const cfg = PRICING_BY_COUNTRY[ctry];
-
-  if (mode === "single"){
-    const km = safeNum(el("s_km").value);
-    const tier = syncTravelTier("s"); // null for per-km travel
-    const tCost = calcTravelCost(prices, { kmOneWay: km, tier });
-
-    rows.push({label: travelLabel(prices, { kmOneWay: km, tier }), amount: tCost, meta:"Charged once per location"});
-    total += tCost;
-
-    const ext = el("sExt").checked;
-    const intr = el("sInt").checked;
-    if (!ext && !intr) messages.push("Select Exterior and/or Interior");
-
-    const acco = (el("s_accoId").value || "").trim();
-    const homeLabel = acco ? `Home (${acco})` : `Home`;
-
-    const inc = prices?.interior?.included_bedrooms ?? 2;
-    const extra = prices?.interior?.extra_bedroom ?? 0;
-
-    if (ext){ rows.push({label:`${homeLabel} • Exterior`, amount: prices ? prices.exterior : 0}); total += prices ? prices.exterior : 0; }
-    if (intr){
-      const bedsRaw = safeNum(el("sBeds").value);
-      if (bedsRaw <= 0) messages.push("Interior selected but bedrooms is 0");
-
-      const bedsEff = effectiveBedroomsForPricing(prices, bedsRaw);
-      const c = calcInterior(prices, bedsRaw);
-
-      let meta = `Up to ${inc} bedrooms`;
-      if (bedsRaw > inc){
-        const chargedExtraBeds = Math.max(0, bedsEff - inc);
-        const extraAmt = chargedExtraBeds * extra;
-
-        if (prices?._country !== "AT" && bedsRaw > 8){
-          meta = `${bedsRaw} bedrooms (cap at 8 • includes +€${extraAmt})`;
-        } else {
-          meta = `${bedsRaw} bedrooms (includes +€${extraAmt})`;
-        }
-      }
-
-      rows.push({label:`${homeLabel} • Interior`, amount: c, meta});
-      total += c;
-    }
-    if (el("sDrone").checked){ rows.push({label:`${homeLabel} • Drone`, amount: prices ? prices.drone : 0}); total += prices ? prices.drone : 0; }
-    if (el("sAcc").checked){
-      const days = clampInt(el("sAccDays").value, 1);
-      const c = (prices ? prices.accessories_per_day : 0) * days;
-      rows.push({label:`${homeLabel} • Accessories × ${days} day${days>1?'s':''}`, amount: c});
-      total += c;
-    }
-
-    const loc = (el("s_locationName").value || "").trim();
-    scopeText = `Single home${loc ? " • "+loc : ""}${acco ? " • "+acco : ""} • ${cfg.label}`;
+let toastTimer;
+function toast(message, undo) {
+  const region = $("toasts");
+  clearTimeout(toastTimer);
+  region.innerHTML = `<div class="toast"><span>${esc(message)}</span>${undo ? `<button type="button" class="btn">Undo</button>` : ""}</div>`;
+  if (undo) {
+    region.querySelector("button").addEventListener("click", () => {
+      undo();
+      region.innerHTML = "";
+    });
   }
-
-  if (mode === "multi_same"){
-    const km = safeNum(el("ms_km").value);
-    const tier = syncTravelTier("ms");
-    const tCost = calcTravelCost(prices, { kmOneWay: km, tier });
-
-    rows.push({label: travelLabel(prices, { kmOneWay: km, tier }), amount: tCost, meta:"Charged once per location"});
-    total += tCost;
-
-    const container = el("ms_homesList");
-    const homeSet = new Set();
-    container.querySelectorAll('input[data-home]').forEach(inp => homeSet.add(inp.dataset.home));
-
-    const inc = prices?.interior?.included_bedrooms ?? 2;
-
-    if (!homeSet.size){
-      messages.push("Build the homes list");
-      rows.push({label:`Homes`, amount:0, meta:"Click “Build list” to add homes."});
-    } else {
-      let idx = 0;
-      homeSet.forEach(h => {
-        idx++;
-        const acco = (container.querySelector(`input[data-home="${h}"][data-k="accoId"]`)?.value || "").trim();
-        const prefix = acco ? `Home ${idx} (${acco})` : `Home ${idx}`;
-
-        const ext = !!container.querySelector(`input[data-home="${h}"][data-k="ext"]`)?.checked;
-        const intr = !!container.querySelector(`input[data-home="${h}"][data-k="int"]`)?.checked;
-        const drone = !!container.querySelector(`input[data-home="${h}"][data-k="drone"]`)?.checked;
-        const acc = !!container.querySelector(`input[data-home="${h}"][data-k="acc"]`)?.checked;
-
-        if (!ext && !intr) messages.push(`${prefix}: select Exterior and/or Interior`);
-
-        const beds = safeNum(container.querySelector(`input[data-home="${h}"][data-k="beds"]`)?.value || 0);
-        if (intr && beds<=0) messages.push(`${prefix}: Interior selected but bedrooms is 0`);
-
-        const accDays = safeNum(container.querySelector(`input[data-home="${h}"][data-k="accDays"]`)?.value || 1);
-
-        const homeTotal = calcHomeTotal(prices, {ext,int:intr,beds,drone,acc,accDays});
-        const parts = [];
-        if (ext) parts.push("Exterior");
-        if (intr) {
-          const bedsEff = effectiveBedroomsForPricing(prices, beds);
-          if (prices?._country !== "AT" && beds > 8) parts.push(`Interior (${beds} beds • cap at 8)`);
-          else parts.push(bedsEff<=inc ? `Interior (≤${inc} beds)` : `Interior (${beds} beds)`);
-        }
-        if (drone) parts.push("Drone");
-        if (acc) parts.push(`Accessories (${clampInt(accDays,1)}d)`);
-
-        rows.push({label: prefix, amount: homeTotal, meta: parts.length ? parts.join(" • ") : "—"});
-        total += homeTotal;
-      });
-    }
-
-    const loc = (el("ms_locationName").value || "").trim();
-    scopeText = `${homeSet.size ? homeSet.size : 0} homes (same location)${loc ? " • "+loc : ""} • ${cfg.label}`;
-  }
-
-  if (mode === "multi_locations"){
-    const state = snapshotMultiLocations();
-    const inc = prices?.interior?.included_bedrooms ?? 2;
-
-    if (!state.locations.length){
-      messages.push("Build the locations");
-      rows.push({label:"Locations", amount:0, meta:"Click “Build locations” to add locations."});
-    } else {
-      state.locations.forEach((loc, i) => {
-        const tier = loc.override ? loc.tier : travelTierFromKm(loc.km);
-        const tCost = calcTravelCost(prices, { kmOneWay: loc.km, tier });
-
-        rows.push({
-          label: `Location ${i+1}${loc.locName ? " • "+loc.locName : ""} • ${travelLabel(prices, { kmOneWay: loc.km, tier })}`,
-          amount: tCost,
-          meta: "Charged once for this location"
-        });
-        total += tCost;
-
-        if (!loc.homes || !loc.homes.length){
-          messages.push(`Location ${i+1}: build homes`);
-          rows.push({label:`↳ Homes`, amount:0, meta:"Click “Build homes” for this location."});
-        } else {
-          loc.homes.forEach((h, idx) => {
-            const homeTotal = calcHomeTotal(prices, h);
-            const parts = [];
-            if (h.ext) parts.push("Exterior");
-            if (h.int) {
-              const bedsEff = effectiveBedroomsForPricing(prices, h.beds);
-              if (prices?._country !== "AT" && h.beds > 8) parts.push(`Interior (${h.beds} beds • cap at 8)`);
-              else parts.push(bedsEff<=inc ? `Interior (≤${inc} beds)` : `Interior (${h.beds} beds)`);
-            }
-            if (h.drone) parts.push("Drone");
-            if (h.acc) parts.push(`Accessories (${clampInt(h.accDays,1)}d)`);
-            const prefix = h.accoId ? `↳ Home ${idx+1} (${h.accoId})` : `↳ Home ${idx+1}`;
-            rows.push({label: prefix, amount: homeTotal, meta: parts.join(" • ")});
-            total += homeTotal;
-          });
-        }
-
-        if (loc.notes){
-          rows.push({label:`Location ${i+1} note`, amount:0, meta: loc.notes});
-        }
-      });
-
-      scopeText = `Multiple locations (${state.locations.length}) • ${cfg.label}`;
-    }
-  }
-
-  el("rows").innerHTML = rows.map(r => `
-    <tr>
-      <td>${r.label}${r.meta ? `<div class="mini muted">${r.meta}</div>` : ``}</td>
-      <td class="right">${money(r.amount)}</td>
-    </tr>
-  `).join("");
-
-  el("totalCell").textContent = money(total);
-  el("bigTotal").textContent = money(total);
-  el("scopeLine").textContent = scopeText;
-
-  validateAndHint(messages);
+  toastTimer = setTimeout(() => { region.innerHTML = ""; }, undo ? 8000 : 3000);
 }
 
-/* =========================================================
-   Copy quote + PDF
-   ========================================================= */
-function buildQuoteModel(){
-  const prices = getPricing();
-  const ctry = el("country").value;
-  const cfg = PRICING_BY_COUNTRY[ctry];
-
-  const model = {
-    title: `Villa for You – Photography Quote (${cfg.label})`,
-    country: ctry,
-    mode,
-    total: 0,
-    sections: [],
-    generatedAt: new Date().toISOString()
-  };
-  const push = (title, lines) => model.sections.push({title, lines});
-
-  const inc = prices?.interior?.included_bedrooms ?? 2;
-  const extra = prices?.interior?.extra_bedroom ?? 0;
-
-  if (mode === "single"){
-    const loc = (el("s_locationName").value || "").trim();
-    const acco = (el("s_accoId").value || "").trim();
-    const km = safeNum(el("s_km").value);
-    const tier = syncTravelTier("s");
-    const travel = calcTravelCost(prices, { kmOneWay: km, tier });
-
-    const lines = [];
-    lines.push({label: travelLabel(prices, { kmOneWay: km, tier }), amount: travel, meta:"Charged once per location"});
-    model.total += travel;
-
-    const homePrefix = acco ? `Home (${acco})` : "Home";
-    if (el("sExt").checked){ lines.push({label:`${homePrefix} • Exterior`, amount: prices ? prices.exterior : 0}); model.total += prices ? prices.exterior : 0; }
-    if (el("sInt").checked){
-      const bedsRaw = safeNum(el("sBeds").value);
-      const bedsEff = effectiveBedroomsForPricing(prices, bedsRaw);
-      const c = calcInterior(prices, bedsRaw);
-
-      let meta = (!prices) ? "TBD" : `Up to ${inc} bedrooms`;
-      if (prices && bedsRaw > inc){
-        const chargedExtraBeds = Math.max(0, bedsEff - inc);
-        const extraAmt = chargedExtraBeds * extra;
-
-        if (prices?._country !== "AT" && bedsRaw > 8){
-          meta = `${bedsRaw} bedrooms (cap at 8 • +€${extraAmt})`;
-        } else {
-          meta = `${bedsRaw} bedrooms (+€${extraAmt})`;
-        }
-      }
-
-      lines.push({label:`${homePrefix} • Interior`, amount: c, meta}); model.total += c;
-    }
-    if (el("sDrone").checked){ lines.push({label:`${homePrefix} • Drone`, amount: prices ? prices.drone : 0}); model.total += prices ? prices.drone : 0; }
-    if (el("sAcc").checked){
-      const days = clampInt(el("sAccDays").value,1);
-      const c = (prices ? prices.accessories_per_day : 0) * days;
-      lines.push({label:`${homePrefix} • Accessories × ${days} day${days>1?'s':''}`, amount: c}); model.total += c;
-    }
-
-    const notes = (el("s_notes").value || "").trim();
-    push(`Single home${loc ? " • "+loc : ""}${acco ? " • "+acco : ""}`, lines);
-    if (notes) push("Notes", [{label: notes, amount: 0}]);
-  }
-
-  if (mode === "multi_same"){
-    const loc = (el("ms_locationName").value || "").trim();
-    const km = safeNum(el("ms_km").value);
-    const tier = syncTravelTier("ms");
-    const travel = calcTravelCost(prices, { kmOneWay: km, tier });
-
-    const lines = [];
-    lines.push({label: travelLabel(prices, { kmOneWay: km, tier }), amount: travel, meta:"Charged once per location"});
-    model.total += travel;
-
-    const container = el("ms_homesList");
-    const homeSet = new Set();
-    container.querySelectorAll('input[data-home]').forEach(inp => homeSet.add(inp.dataset.home));
-
-    let idx = 0;
-    homeSet.forEach(h => {
-      idx++;
-      const acco = (container.querySelector(`input[data-home="${h}"][data-k="accoId"]`)?.value || "").trim();
-      const prefix = acco ? `Home ${idx} (${acco})` : `Home ${idx}`;
-
-      const ext = !!container.querySelector(`input[data-home="${h}"][data-k="ext"]`)?.checked;
-      const intr = !!container.querySelector(`input[data-home="${h}"][data-k="int"]`)?.checked;
-      const drone = !!container.querySelector(`input[data-home="${h}"][data-k="drone"]`)?.checked;
-      const acc = !!container.querySelector(`input[data-home="${h}"][data-k="acc"]`)?.checked;
-      const bedsRaw = safeNum(container.querySelector(`input[data-home="${h}"][data-k="beds"]`)?.value || 0);
-      const accDays = safeNum(container.querySelector(`input[data-home="${h}"][data-k="accDays"]`)?.value || 1);
-
-      const homeTotal = calcHomeTotal(prices, {ext,int:intr,beds:bedsRaw,drone,acc,accDays});
-      const bedsEff = effectiveBedroomsForPricing(prices, bedsRaw);
-
-      const meta = [
-        ext ? "Exterior" : null,
-        intr ? (prices?._country !== "AT" && bedsRaw > 8 ? `Interior (${bedsRaw} beds • cap at 8)` : (bedsEff<=inc ? `Interior (≤${inc} beds)` : `Interior (${bedsRaw} beds)`)) : null,
-        drone ? "Drone" : null,
-        acc ? `Accessories (${clampInt(accDays,1)}d)` : null,
-      ].filter(Boolean).join(" • ");
-
-      model.total += homeTotal;
-      lines.push({label: prefix, amount: homeTotal, meta});
-    });
-
-    push(`Multiple homes (same location)${loc ? " • "+loc : ""}`, lines);
-    const notes = (el("ms_notes").value || "").trim();
-    if (notes) push("Notes", [{label: notes, amount: 0}]);
-  }
-
-  if (mode === "multi_locations"){
-    const state = snapshotMultiLocations();
-    state.locations.forEach((loc, i) => {
-      const tier = loc.override ? loc.tier : travelTierFromKm(loc.km);
-      const travel = calcTravelCost(prices, { kmOneWay: loc.km, tier });
-
-      const lines = [];
-      lines.push({label: travelLabel(prices, { kmOneWay: loc.km, tier }), amount: travel, meta:"Charged once for this location"});
-      model.total += travel;
-
-      (loc.homes || []).forEach((h, idx) => {
-        const homeTotal = calcHomeTotal(prices, h);
-        const bedsEff = effectiveBedroomsForPricing(prices, h.beds);
-
-        const meta = [
-          h.ext ? "Exterior" : null,
-          h.int ? (prices?._country !== "AT" && h.beds > 8 ? `Interior (${h.beds} beds • cap at 8)` : (bedsEff<=inc ? `Interior (≤${inc} beds)` : `Interior (${h.beds} beds)`)) : null,
-          h.drone ? "Drone" : null,
-          h.acc ? `Accessories (${clampInt(h.accDays,1)}d)` : null,
-        ].filter(Boolean).join(" • ");
-
-        const prefix = h.accoId ? `Home ${idx+1} (${h.accoId})` : `Home ${idx+1}`;
-        lines.push({label: prefix, amount: homeTotal, meta});
-        model.total += homeTotal;
-      });
-
-      if (loc.notes) lines.push({label:"Notes", amount:0, meta: loc.notes});
-      push(`Location ${i+1}${loc.locName ? " • "+loc.locName : ""}`, lines);
-    });
-  }
-
-  return model;
-}
-
-function quoteTextFromModel(model){
-  const lines = [];
-  lines.push(model.title);
-  lines.push("------------------------------------------");
-  model.sections.forEach(sec => {
-    lines.push("");
-    lines.push(sec.title);
-    sec.lines.forEach(l => {
-      const meta = l.meta ? ` (${l.meta})` : "";
-      lines.push(`- ${l.label}: ${money(l.amount)}${meta}`);
-    });
+function withUndo(message, mutate, focusKey) {
+  const snapshot = JSON.stringify(state);
+  mutate();
+  commit(focusKey);
+  toast(message, () => {
+    state = JSON.parse(snapshot);
+    renderCountry();
+    commit();
+    toast("Restored");
   });
-  lines.push("");
-  lines.push(`TOTAL: ${money(model.total)}`);
-  lines.push("");
-  lines.push("Deliverables: 30–40 photos per home (editing included).");
-  return lines.join("\n");
-}
-
-async function copyQuote(){
-  const model = buildQuoteModel();
-  const text = quoteTextFromModel(model);
-  try{
-    await navigator.clipboard.writeText(text);
-    el("copyBtn").textContent = "Copied ✓";
-    setTimeout(()=> el("copyBtn").textContent = "Copy quote", 1200);
-  }catch(e){
-    const ta = document.createElement("textarea");
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand("copy");
-    document.body.removeChild(ta);
-    el("copyBtn").textContent = "Copied ✓";
-    setTimeout(()=> el("copyBtn").textContent = "Copy quote", 1200);
-  }
-}
-
-function exportPdf(){
-  const model = buildQuoteModel();
-
-  const html = `
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>VfY Photography Quote</title>
-  <style>
-    body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;margin:32px;color:#111}
-    h1{margin:0 0 6px;font-size:22px}
-    .sub{color:#444;margin:0 0 18px;font-size:13px}
-    .box{border:1px solid #ddd;border-radius:12px;padding:14px;margin:12px 0}
-    .secTitle{font-weight:800;margin:0 0 8px}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:8px 10px;border-bottom:1px solid #eee;font-size:13px;vertical-align:top}
-    th{text-align:left;color:#555}
-    .right{text-align:right}
-    .meta{color:#666;font-size:12px;margin-top:2px}
-    .total{margin-top:14px;text-align:right;font-size:16px;font-weight:900}
-    .footer{margin-top:18px;color:#444;font-size:12px}
-    @media print{ body{margin:18px} }
-  </style>
-</head>
-<body>
-  <h1>${model.title}</h1>
-  <p class="sub">Deliverables: 30–40 photos per home (editing included).</p>
-
-  ${model.sections.map(sec => `
-    <div class="box">
-      <div class="secTitle">${sec.title}</div>
-      <table>
-        <thead><tr><th>Item</th><th class="right">Amount (€)</th></tr></thead>
-        <tbody>
-          ${sec.lines.map(l => `
-            <tr>
-              <td>${l.label}${l.meta ? `<div class="meta">${l.meta}</div>` : ``}</td>
-              <td class="right">${money(l.amount)}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    </div>
-  `).join("")}
-
-  <div class="total">TOTAL: ${money(model.total)}</div>
-  <div class="footer">Country: ${model.country}. This tool is for estimation purposes only. No rights can be derived from these prices. </div>
-  <script>window.onload=()=>window.print();<\/script>
-</body>
-</html>
-  `.trim();
-
-  const w = window.open("", "_blank");
-  w.document.open();
-  w.document.write(html);
-  w.document.close();
 }
 
 /* =========================================================
-   SAVE LINK (state in URL hash)
+   Link state (#state=…) — also reads links from the previous version
    ========================================================= */
-function base64UrlEncode(str){
+function b64urlEncode(str) {
   const b64 = btoa(unescape(encodeURIComponent(str)));
-  return b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
-function base64UrlDecode(str){
-  const pad = str.length % 4 ? '='.repeat(4 - (str.length % 4)) : '';
-  const b64 = (str + pad).replace(/-/g,'+').replace(/_/g,'/');
-  return decodeURIComponent(escape(atob(b64)));
+function b64urlDecode(str) {
+  const pad = str.length % 4 ? "=".repeat(4 - (str.length % 4)) : "";
+  return decodeURIComponent(escape(atob((str + pad).replace(/-/g, "+").replace(/_/g, "/"))));
 }
 
-function getState(){
-  const state = {
-    v: 2,
-    country: el("country").value,
-    mode,
-    single: {
-      locationName: el("s_locationName").value,
-      km: safeNum(el("s_km").value),
-      tierOverride: !!el("s_tierOverride").checked,
-      tier: el("s_tierSelect").value,
-      accoId: el("s_accoId").value,
-      ext: !!el("sExt").checked,
-      int: !!el("sInt").checked,
-      drone: !!el("sDrone").checked,
-      acc: !!el("sAcc").checked,
-      beds: safeNum(el("sBeds").value),
-      accDays: safeNum(el("sAccDays").value),
-      notes: el("s_notes").value,
-    },
-    multiSame: {
-      locationName: el("ms_locationName").value,
-      km: safeNum(el("ms_km").value),
-      tierOverride: !!el("ms_tierOverride").checked,
-      tier: el("ms_tierSelect").value,
-      notes: el("ms_notes").value,
-      homes: []
-    },
-    multiLoc: {
-      locCount: clampInt(el("ml_locCount").value, 1),
-      locations: []
-    }
+function encodeState() {
+  return b64urlEncode(JSON.stringify({
+    v: 3,
+    c: state.country,
+    l: state.locations.map((l) => ({
+      n: l.name, k: l.km, t: l.tier, o: l.notes,
+      h: l.homes.map((h) => [h.accoId, +h.ext, +h.int, h.beds, +h.drone, +h.acc, h.accDays]),
+    })),
+  }));
+}
+
+function cleanHome(h) {
+  return {
+    id: uid(),
+    accoId: String(h.accoId ?? ""),
+    ext: !!h.ext, int: !!h.int, drone: !!h.drone, acc: !!h.acc,
+    beds: parseCount(h.beds, 2),
+    accDays: parseCount(h.accDays, 1),
   };
-
-  const msContainer = el("ms_homesList");
-  if (msContainer.querySelector('input[data-home]')){
-    const homeIds = new Set();
-    msContainer.querySelectorAll('input[data-home]').forEach(inp => homeIds.add(inp.dataset.home));
-    homeIds.forEach(h => {
-      const q = (k) => msContainer.querySelector(`input[data-home="${h}"][data-k="${k}"]`);
-      state.multiSame.homes.push({
-        accoId: q("accoId")?.value || "",
-        ext: !!q("ext")?.checked,
-        int: !!q("int")?.checked,
-        drone: !!q("drone")?.checked,
-        acc: !!q("acc")?.checked,
-        beds: safeNum(q("beds")?.value || 0),
-        accDays: safeNum(q("accDays")?.value || 1),
-      });
-    });
-  }
-
-  const snap = snapshotMultiLocations();
-  state.multiLoc.locCount = snap.locCount || state.multiLoc.locCount;
-  state.multiLoc.locations = snap.locations || [];
-
-  return state;
+}
+function cleanLocation(l) {
+  const km = parseKm(l.km ?? 0);
+  const tier = RATES.AT.travel.bands.some((b) => b.id === l.tier) ? l.tier : bandFor(km).id;
+  return { id: uid(), name: String(l.name ?? ""), km, tier, notes: String(l.notes ?? ""), homes: (l.homes || []).map(cleanHome) };
 }
 
-function applyState(state){
-  if (!state || typeof state !== "object") return;
+function decodeState(raw) {
+  const data = JSON.parse(b64urlDecode(raw));
+  if (!data || typeof data !== "object") throw new Error("not an object");
+  const country = RATES[data.c || data.country] ? (data.c || data.country) : "AT";
 
-  if (state.country && PRICING_BY_COUNTRY[state.country]) el("country").value = state.country;
-  setPricingHints();
-  updateTravelUI();
-
-  if (state.mode) mode = state.mode;
-  modeBtns.forEach(x => x.classList.remove("active"));
-  const activeBtn = document.querySelector(`#modeBar .pill[data-mode="${mode}"]`);
-  if (activeBtn) activeBtn.classList.add("active");
-  el("singlePanel").style.display     = (mode==="single") ? "block" : "none";
-  el("multiSamePanel").style.display  = (mode==="multi_same") ? "block" : "none";
-  el("multiLocPanel").style.display   = (mode==="multi_locations") ? "block" : "none";
-
-  if (state.single){
-    el("s_locationName").value = state.single.locationName ?? "";
-    el("s_km").value = state.single.km ?? 0;
-    el("s_tierOverride").checked = !!state.single.tierOverride;
-    el("s_tierSelect").value = state.single.tier ?? "0_50";
-    el("s_accoId").value = state.single.accoId ?? "";
-    el("sExt").checked = !!state.single.ext;
-    el("sInt").checked = !!state.single.int;
-    el("sDrone").checked = !!state.single.drone;
-    el("sAcc").checked = !!state.single.acc;
-    el("sBeds").value = state.single.beds ?? 0;
-    el("sAccDays").value = state.single.accDays ?? 1;
-    el("s_notes").value = state.single.notes ?? "";
-    syncSingleUI();
-    syncTravelTier("s");
+  if (data.v === 3) {
+    if (!Array.isArray(data.l)) throw new Error("no locations");
+    return {
+      country,
+      locations: data.l.map((l) => cleanLocation({
+        name: l.n, km: l.k, tier: l.t, notes: l.o,
+        homes: (l.h || []).map((a) => ({ accoId: a[0], ext: a[1], int: a[2], beds: a[3], drone: a[4], acc: a[5], accDays: a[6] })),
+      })),
+    };
   }
 
-  if (state.multiSame){
-    el("ms_locationName").value = state.multiSame.locationName ?? "";
-    el("ms_km").value = state.multiSame.km ?? 0;
-    el("ms_tierOverride").checked = !!state.multiSame.tierOverride;
-    el("ms_tierSelect").value = state.multiSame.tier ?? "0_50";
-    el("ms_notes").value = state.multiSame.notes ?? "";
-    syncTravelTier("ms");
-
-    if (Array.isArray(state.multiSame.homes) && state.multiSame.homes.length){
-      el("ms_homeCount").value = state.multiSame.homes.length;
-      buildMultiSameHomes(state.multiSame.homes);
-    } else {
-      el("ms_homesList").innerHTML = "";
-    }
+  // Version 1 of the calculator: three separate modes.
+  const tierOf = (km, override, tier) => (override ? tier : bandFor(parseKm(km)).id);
+  const withHome = (homes) => (homes && homes.length ? homes : [newHome()]);
+  if (data.mode === "multi_same" && data.multiSame) {
+    const m = data.multiSame;
+    return { country, locations: [cleanLocation({ name: m.locationName, km: m.km, tier: tierOf(m.km, m.tierOverride, m.tier), notes: m.notes, homes: withHome(m.homes) })] };
   }
-
-  if (state.multiLoc){
-    el("ml_locCount").value = state.multiLoc.locCount ?? 1;
-    if (Array.isArray(state.multiLoc.locations) && state.multiLoc.locations.length){
-      buildMultiLocations({ locCount: state.multiLoc.locations.length, locations: state.multiLoc.locations });
-    } else {
-      el("ml_locations").innerHTML = "";
-    }
+  if (data.mode === "multi_locations" && data.multiLoc) {
+    const locs = (data.multiLoc.locations || []).map((l) => cleanLocation({ name: l.locName, km: l.km, tier: tierOf(l.km, l.override, l.tier), notes: l.notes, homes: withHome(l.homes) }));
+    if (!locs.length) throw new Error("no locations");
+    return { country, locations: locs };
   }
-
-  recalc();
+  if (data.single) {
+    const s = data.single;
+    return { country, locations: [cleanLocation({ name: s.locationName, km: s.km, tier: tierOf(s.km, s.tierOverride, s.tier), notes: s.notes, homes: [s] })] };
+  }
+  throw new Error("unknown format");
 }
 
-async function saveLink(){
-  const state = getState();
-  const encoded = base64UrlEncode(JSON.stringify(state));
-  const url = new URL(window.location.href);
-  url.hash = `state=${encoded}`;
-
-  try{
-    await navigator.clipboard.writeText(url.toString());
-    el("saveLinkBtn").textContent = "Link copied ✓";
-    setTimeout(()=> el("saveLinkBtn").textContent = "Save link", 1200);
-  }catch(e){
-    prompt("Copy this link:", url.toString());
-  }
+let lastHash = "";
+function syncUrl() {
+  const hash = "#state=" + encodeState();
+  if (hash === lastHash) return;
+  lastHash = hash;
+  history.replaceState(null, "", hash);
 }
 
-function loadStateFromUrl(){
-  const hash = window.location.hash || "";
-  const m = hash.match(/state=([^&]+)/);
+function loadFromUrl() {
+  const m = (location.hash || "").match(/state=([^&]+)/);
+  $("linkError").innerHTML = "";
   if (!m) return false;
-  try{
-    const json = base64UrlDecode(m[1]);
-    const state = JSON.parse(json);
-    applyState(state);
+  try {
+    state = decodeState(m[1]);
+    notesOpen.clear();
+    lastHash = location.hash;
     return true;
-  }catch(e){
-    console.warn("Failed to load state:", e);
+  } catch (err) {
+    state = defaultState();
+    $("linkError").innerHTML = `
+      <div class="state-box is-error" role="alert">
+        ${icon("alert")}
+        <h2>This saved link couldn't be opened</h2>
+        <p>The link is probably incomplete, for example cut off in an email. Copy the full link again, or start a new quote below.</p>
+        <div class="state-actions"><button type="button" class="btn btn-secondary btn-sm" id="dismissLinkError">Start a new quote</button></div>
+      </div>`;
+    $("dismissLinkError").addEventListener("click", () => {
+      $("linkError").innerHTML = "";
+      history.replaceState(null, "", location.pathname + location.search);
+      lastHash = "";
+      builder.querySelector("input")?.focus();
+    });
     return false;
   }
 }
 
-/* =========================================================
-   Buttons & reset
-   ========================================================= */
-el("copyBtn").addEventListener("click", copyQuote);
-el("saveLinkBtn").addEventListener("click", saveLink);
-el("exportPdfBtn").addEventListener("click", exportPdf);
-
-function resetAll(){
-  window.location.hash = "";
-  mode = "single";
-  modeBtns.forEach(x => x.classList.remove("active"));
-  document.querySelector('#modeBar .pill[data-mode="single"]').classList.add("active");
-
-  el("country").value = "AT";
-  setPricingHints();
-  updateTravelUI();
-
-  el("singlePanel").style.display = "block";
-  el("multiSamePanel").style.display = "none";
-  el("multiLocPanel").style.display = "none";
-
-  el("s_locationName").value = "";
-  el("s_accoId").value = "";
-  el("s_km").value = 0;
-  el("s_tierOverride").checked = false;
-  el("s_tierSelect").value = "0_50";
-  el("sExt").checked = true;
-  el("sInt").checked = true;
-  el("sDrone").checked = false;
-  el("sAcc").checked = false;
-  el("sBeds").value = 2;
-  el("sAccDays").value = 1;
-  el("s_notes").value = "";
-
-  el("ms_locationName").value = "";
-  el("ms_km").value = 0;
-  el("ms_tierOverride").checked = false;
-  el("ms_tierSelect").value = "0_50";
-  el("ms_homeCount").value = 3;
-  el("ms_homesList").innerHTML = "";
-  el("ms_notes").value = "";
-
-  el("ml_locCount").value = 2;
-  el("ml_locations").innerHTML = "";
-
-  syncSingleUI();
-  syncTravelTier("s");
-  syncTravelTier("ms");
-  recalc();
-}
-el("resetBtn").addEventListener("click", resetAll);
-
-/* =========================================================
-   Country change
-   ========================================================= */
-el("country").addEventListener("input", () => {
-  setPricingHints();
-  updateTravelUI();
-
-  // If multi-locations is open, rebuild to hide/show tier rows correctly
-  if (mode === "multi_locations" && el("ml_locations").innerHTML.trim()){
-    const snap = snapshotMultiLocations();
-    buildMultiLocations(snap);
-  }
-
-  recalc();
+window.addEventListener("hashchange", () => {
+  if (location.hash === lastHash) return;
+  loadFromUrl();
+  renderCountry();
+  commit();
 });
+
+/* =========================================================
+   Copy quote / link, print
+   ========================================================= */
+function quoteText() {
+  const q = buildQuote();
+  const out = [`Villa for You – Photography quote`, `${q.r.label} · ${dateFmt.format(new Date())}`];
+  q.locs.forEach((L) => {
+    out.push("", `Location ${L.n}${L.loc.name.trim() ? " – " + L.loc.name.trim() : ""}`);
+    out.push(`• Travel (${L.travel.detail}): ${eur(L.travel.amount)}`);
+    L.homes.forEach((H) => {
+      out.push(`• ${homeName(H.h, H.n)}: ${eur(H.total)}`);
+      if (H.items.length) out.push(`    ${H.items.map((i) => `${i.label} ${eur(i.amount)}`).join(" · ")}`);
+    });
+    if (L.loc.notes.trim()) out.push(`  Note: ${L.loc.notes.trim()}`);
+    if (q.locs.length > 1) out.push(`  Subtotal: ${eur(L.total)}`);
+  });
+  out.push("", `Total: ${eur(q.total)}`, "", "30–40 edited photos per home. Estimate based on the 2026 photographer rates; no rights can be derived from it.");
+  return out.join("\n");
+}
+
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (e) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand("copy");
+    ta.remove();
+    return ok;
+  }
+}
+
+function setBtn(btn, iconName, label) { btn.innerHTML = `${icon(iconName)}<span>${label}</span>`; }
+
+function flash(btn, iconName, label, doneLabel) {
+  setBtn(btn, "check", doneLabel);
+  setTimeout(() => setBtn(btn, iconName, label), 1600);
+}
+
+$("copyBtn").addEventListener("click", async () => {
+  const ok = await copyText(quoteText());
+  if (ok) {
+    flash($("copyBtn"), "copy", "Copy quote", "Quote copied");
+    toast("Quote copied. Paste it into an email or Teams.");
+  } else {
+    toast("Copying didn't work in this browser. Use Print / PDF instead.");
+  }
+});
+
+$("linkBtn").addEventListener("click", async () => {
+  syncUrl();
+  const ok = await copyText(location.href);
+  if (ok) {
+    flash($("linkBtn"), "link", "Copy link", "Link copied");
+    toast("Link copied. Opening it brings back this exact quote.");
+  } else {
+    toast("Copying didn't work. Copy the address from the browser bar instead.");
+  }
+});
+
+$("printBtn").addEventListener("click", () => window.print());
+
+function renderPrint() {
+  const q = buildQuote();
+  const logo = document.querySelector(".logo-color").getAttribute("src");
+  $("print").innerHTML = `
+    <div class="p-head">
+      <div>
+        <h1>Photography quote</h1>
+        <div class="p-meta">${esc(q.r.label)} · ${dateFmt.format(new Date())} · ${plural(q.homeCount, "home")}</div>
+      </div>
+      <img src="${logo}" width="86" height="60" alt="Villa for You">
+    </div>
+    ${q.locs.map((L) => `
+      <div class="p-loc">
+        <h2>Location ${L.n}${L.loc.name.trim() ? " – " + esc(L.loc.name.trim()) : ""}</h2>
+        <table>
+          <tr><td>Travel<small>${esc(L.travel.detail)}</small></td><td class="a">${eur(L.travel.amount)}</td></tr>
+          ${L.homes.map((H) => `
+            <tr><td>${esc(homeName(H.h, H.n))}<small>${H.items.map((i) => `${esc(i.label)} ${eur(i.amount)}`).join(" · ") || "No services selected"}</small></td><td class="a">${eur(H.total)}</td></tr>`).join("")}
+          ${q.locs.length > 1 ? `<tr class="p-sub"><td>Subtotal</td><td class="a">${eur(L.total)}</td></tr>` : ""}
+        </table>
+        ${L.loc.notes.trim() ? `<p class="p-note">Note: ${esc(L.loc.notes.trim())}</p>` : ""}
+      </div>`).join("")}
+    <div class="p-total"><span>Total</span><span>${eur(q.total)}</span></div>
+    <p class="p-foot">30–40 edited photos per home. Estimate based on the 2026 photographer rates; no rights can be derived from it.</p>`;
+}
+window.addEventListener("beforeprint", renderPrint);
+
+$("resetBtn").addEventListener("click", () => {
+  withUndo("Quote cleared", () => {
+    state = defaultState(state.country);
+    notesOpen.clear();
+  });
+  history.replaceState(null, "", location.pathname + location.search);
+  lastHash = "";
+});
+
+/* =========================================================
+   Theme toggle
+   ========================================================= */
+function renderThemeBtn() {
+  const dark = document.documentElement.classList.contains("dark");
+  const btn = $("themeBtn");
+  btn.innerHTML = icon(dark ? "sun" : "moon");
+  btn.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+  btn.title = dark ? "Light theme" : "Dark theme";
+}
+$("themeBtn").addEventListener("click", () => {
+  const dark = document.documentElement.classList.toggle("dark");
+  try { localStorage.setItem("vfy-theme", dark ? "dark" : "light"); } catch (e) {}
+  renderThemeBtn();
+});
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+  let stored = null;
+  try { stored = localStorage.getItem("vfy-theme"); } catch (err) {}
+  if (stored) return;
+  document.documentElement.classList.toggle("dark", e.matches);
+  renderThemeBtn();
+});
+
+/* =========================================================
+   Mobile total bar
+   ========================================================= */
+$("mbarBtn").addEventListener("click", () => {
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  $("summary").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  $("summaryTitle").focus({ preventScroll: true });
+});
+if ("IntersectionObserver" in window) {
+  new IntersectionObserver(([entry]) => {
+    $("mbar").classList.toggle("is-hidden", entry.isIntersecting);
+  }, { threshold: 0.15 }).observe($("summary"));
+}
 
 /* =========================================================
    Init
    ========================================================= */
-setPricingHints();
-syncSingleUI();
-syncTravelTier("s");
-syncTravelTier("ms");
-updateTravelUI();
-
-// Try load from URL; otherwise default init
-loadStateFromUrl();
-recalc();
+setBtn($("copyBtn"), "copy", "Copy quote");
+setBtn($("linkBtn"), "link", "Copy link");
+setBtn($("printBtn"), "printer", "Print / PDF");
+setBtn($("resetBtn"), "reset", "Start over");
+setBtn($("mbarBtn"), "down", "View quote");
+renderThemeBtn();
+loadFromUrl();
+renderCountry();
+renderBuilder();
+renderDerived();
 </script>
 </body>
 </html>
